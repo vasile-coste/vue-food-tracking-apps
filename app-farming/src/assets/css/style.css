@@ -1,0 +1,269 @@
+/** Globals */
+
+*:focus {
+    outline: none;
+}
+
+/** Menu */
+
+.mainNavBar {
+    background-color: #009A7F;
+}
+
+/** Menu - Logo */
+
+.mainNavBar .navbar-brand {
+    color: #fff;
+}
+
+/** Menu - links */
+
+.useProfile {
+    font-weight: 600;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.useProfile:hover {
+    text-decoration: none;
+    color: yellow;
+}
+
+.userLogout {
+    color: #fff;
+}
+
+.userLogout img {
+    height: 30px;
+}
+
+/** Menu - links */
+
+.nav-item .nav-link {
+    color: #fff;
+}
+
+.nav-item .nav-link:hover {
+    color: yellow;
+}
+
+.nav-item.active .nav-link {
+    color: yellow;
+}
+
+/** Menu - hamburgerButton */
+
+.mainNavBar .hamburgerButton {
+    border-color: #fff;
+}
+
+.hamburgerButton {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.hamburgerButton-bar1, .hamburgerButton-bar2, .hamburgerButton-bar3 {
+    width: 40px;
+    height: 5px;
+    background-color: #fff;
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+.hamburgerClose .hamburgerButton-bar1 {
+    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+    transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+.hamburgerClose .hamburgerButton-bar2 {
+    opacity: 0;
+}
+
+.hamburgerClose .hamburgerButton-bar3 {
+    -webkit-transform: rotate(45deg) translate(-8px, -8px);
+    transform: rotate(45deg) translate(-8px, -8px);
+}
+
+/** Page Header submenu */
+
+.headerMenu {
+    background-image: url("../images/banner.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.submenuBtn {
+    text-align: center;
+    display: inline-block;
+    margin: 10px 10px 10px 0;
+    cursor: pointer;
+}
+
+.submenuBtn-text {
+    padding: 3px 6px;
+    color: #000;
+    background-color: #fff;
+    text-transform: uppercase;
+}
+
+.submenuBtn-img {
+    height: 30px;
+    width: 30px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+}
+
+.submenuBtn:hover .seeding, .submenuBtn.active .seeding {
+    background-image: url("../images/dashboard/seeding_yellow.png");
+}
+
+.submenuBtn:hover .harvesting, .submenuBtn.active .harvesting {
+    background-image: url("../images/dashboard/harvesting_yellow.png");
+}
+
+.submenuBtn:hover .fertilizing, .submenuBtn.active .fertilizing {
+    background-image: url("../images/dashboard/fertilizing_yellow.png");
+}
+
+.seeding {
+    background-image: url("../images/dashboard/seeding_white.png");
+}
+
+.harvesting {
+    background-image: url("../images/dashboard/harvesting_white.png");
+    width: 40px;
+}
+
+.fertilizing {
+    background-image: url("../images/dashboard/fertilizing_white.png");
+}
+
+/** Page home actions*/
+
+.actionHeader {
+    text-transform: capitalize;
+}
+
+/** Map Page*/
+
+.mapTitle {
+    font-weight: 700;
+}
+
+.mapTitle img {
+    margin-right: 5px;
+    height: 30px;
+}
+
+.mapStatus{
+    display: inline-block;
+    background-color: #F2F2F2;
+    padding: 3px 6px;
+    margin:2px 3px;
+    border-radius: 5px;
+}
+
+.mapStatus-label{
+    font-weight: 700;
+}
+.mapStatus-value{
+    margin-left: 5px;
+}
+
+/** Loading element */
+
+.loading {
+    width: 100%;
+    height: 200px;
+    background-color: rgb(244 241 241);
+    ;
+}
+
+.loading-element:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
+    border-top: 3px solid #009A7F;
+    border-right: 3px solid transparent;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/** Login Page */
+
+.authBackground {
+    background-image: url("../images/login-splash-screen-clean.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.authBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.authHeader {
+    background-color: #2a8272;
+    color: #fff;
+    padding: 10px 0;
+}
+
+.authForm {
+    background-color: #d9ede3;
+    padding: 30px;
+}
+
+.authAction button {
+    margin: 0 10px;
+}
+
+.authAction button.btn-primary {
+    background: #7f1a23;
+    border: 0;
+}
+
+.loginForm, .registerForm {
+    width: 100%;
+    display: none;
+    box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.75);
+    -webkit-box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.75);
+}
+
+.loginForm {
+    max-width: 376px;
+}
+
+.registerForm {
+    max-width: 830px;
+}
+
+.activeForm {
+    display: inherit;
+}
+
+/** Home */
