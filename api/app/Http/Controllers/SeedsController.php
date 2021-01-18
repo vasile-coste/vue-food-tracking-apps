@@ -13,7 +13,7 @@ class SeedsController extends Controller
      */
     public function seeds(int $user_id)
     {
-        $seeds = Seeds::where('user_id', $user_id)->get();
+        $seeds = Seeds::where('user_id', $user_id)->orderBy('name', 'ASC')->get();
 
         return response()->json([
             "success" => true,

@@ -35,7 +35,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12 col-sm-12" :class="{ 'd-none': actionName != 'seeding' }">
-          <h2 class="actionHeader">Seeding</h2>
+          <h2 class="actionHeader">Seeding Settings</h2>
           <button
             type="button"
             class="btn btn-light m-1"
@@ -90,13 +90,13 @@
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'fertilizing' }"
         >
-          <h2 class="actionHeader">Fertilizing</h2>
+          <h2 class="actionHeader">Fertilizing Settings</h2>
         </div>
         <div
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'harvesting' }"
         >
-          <h2 class="actionHeader">Harvesting</h2>
+          <h2 class="actionHeader">Harvesting Settings</h2>
         </div>
 
         <!-- /row div -->
@@ -210,15 +210,20 @@ export default {
         name: this.seedForm.name,
         user_id: this.user.id,
       };
-      if (this.seedForm.obj != null) {
-        /** prepare form for update */
-        urlPart = "update";
-        seedObj.id = this.seedForm.obj.id;
-      }
 
       if (!seedObj.name || seedObj.name.length == 0) {
         this.showWarning("Please complete Seed Name.");
         return;
+      }
+
+      if (this.seedForm.obj != null) {
+        /** prepare form for update */
+        urlPart = "update";
+        seedObj.id = this.seedForm.obj.id;
+        if(seedObj.name == this.seedForm.obj.name){
+          this.showSuccess("Nothing to update!");
+          return;
+        }
       }
 
       this.$axios.post("farming/seeds/" + urlPart, seedObj).then((res) => {
