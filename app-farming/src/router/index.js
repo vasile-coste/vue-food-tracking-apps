@@ -35,12 +35,13 @@ const router = new VueRouter({
     base: process.env.BASE_URL,
     routes
 });
-// router.beforeEach((to, from, next) => {
-//     if ((to.name !== 'Auth') && !router.app.$session.exists()) {
-//         next({ name: 'Auth' });
-//     } else {
-//         next();
-//     }
-// });
+
+router.beforeEach((to, from, next) => {
+    if ((to.name !== 'Auth') && !router.app.$session.exists()) {
+        next({ name: 'Auth' });
+    } else {
+        next();
+    }
+});
 
 export default router;

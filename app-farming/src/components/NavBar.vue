@@ -28,7 +28,7 @@
         </li>
       </ul>
       <div class="form-inline">
-          <a class="useProfile" href="/profile">{{ user }}</a>
+          <a class="useProfile" href="/profile">{{ user.first_name }}</a>
           <a class="userLogout" href="#" @click="logout">
             <img src="@/assets/images/header/logout.png" alt="Logout">
           </a>
@@ -56,7 +56,7 @@ export default {
           text: "Settings",
         }
       ],
-      user: "Vali", //this.$session.get('user')
+      user: this.$session.get('user')
     };
   },
   methods: {

@@ -160,18 +160,19 @@
     height: 30px;
 }
 
-.mapStatus{
+.mapStatus {
     display: inline-block;
     background-color: #F2F2F2;
     padding: 3px 6px;
-    margin:2px 3px;
+    margin: 2px 3px;
     border-radius: 5px;
 }
 
-.mapStatus-label{
+.mapStatus-label {
     font-weight: 700;
 }
-.mapStatus-value{
+
+.mapStatus-value {
     margin-left: 5px;
 }
 
@@ -235,6 +236,8 @@
 .authForm {
     background-color: #d9ede3;
     padding: 30px;
+    overflow-y: auto;
+    max-height: 400px;
 }
 
 .authAction button {

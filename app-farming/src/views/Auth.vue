@@ -34,8 +34,7 @@
           <div class="col-md-12 form-group">
             <input
               type="text"
-              v-model="login.username"
-              name="username"
+              v-model="login.email"
               class="form-control"
               placeholder="Username"
               required
@@ -45,7 +44,6 @@
             <input
               type="password"
               v-model="login.password"
-              name="password"
               class="form-control"
               placeholder="Password"
               required
@@ -55,12 +53,7 @@
             <button type="submit" class="btn btn-primary" @click.prevent="loginAction">
               Submit
             </button>
-            <button
-              id="register"
-              type="button"
-              class="btn btn-link"
-              @click="toggleForms"
-            >
+            <button id="register" type="button" class="btn btn-link" @click="toggleForms">
               Register
             </button>
           </div>
@@ -78,11 +71,37 @@
         <div class="row authForm">
           <div class="col-sm-12 col-md-6 form-group">
             <input
-              v-model="register.username"
+              v-model="register.first_name"
               type="text"
-              name="username"
               class="form-control"
-              placeholder="Username"
+              placeholder="First Name"
+              required
+            />
+          </div>
+          <div class="col-sm-12 col-md-6 form-group">
+            <input
+              v-model="register.last_name"
+              type="text"
+              class="form-control"
+              placeholder="Last Name"
+              required
+            />
+          </div>
+          <div class="col-sm-12 col-md-6 form-group">
+            <input
+              v-model="register.company"
+              type="text"
+              class="form-control"
+              placeholder="Company"
+              required
+            />
+          </div>
+          <div class="col-sm-12 col-md-6 form-group">
+            <input
+              v-model="register.phone"
+              type="text"
+              class="form-control"
+              placeholder="Phone"
               required
             />
           </div>
@@ -90,7 +109,6 @@
             <input
               v-model="register.email"
               type="email"
-              name="email"
               class="form-control"
               placeholder="Email"
               required
@@ -100,39 +118,28 @@
             <input
               v-model="register.password1"
               type="password"
-              name="password1"
               class="form-control"
               placeholder="Password"
               required
             />
           </div>
+          <div class="d-none d-md-block col-md-6 form-group"></div>
           <div class="col-sm-12 col-md-6 form-group">
             <input
               v-model="register.password2"
               type="password"
-              name="password2"
               class="form-control"
               placeholder="Re-type Password"
               required
             />
           </div>
-          <div class="col-sm-12 col-md-6 form-group">
-            <input
-              v-model="register.company"
-              type="text"
-              name="company"
+          <div class="col-sm-12 col-md-12 form-group">
+            <textarea
+              v-model="register.address"
               class="form-control"
-              placeholder="Company"
-            />
-          </div>
-          <div class="col-sm-12 col-md-6 form-group">
-            <input
-              v-model="register.phone"
-              type="text"
-              name="phone"
-              class="form-control"
-              placeholder="Phone"
-            />
+              placeholder="Address"
+              required
+            ></textarea>
           </div>
           <div class="col-md-12 text-center mt-2 authAction">
             <button type="button" class="btn btn-primary" @click.prevent="registerAction">
@@ -159,16 +166,20 @@ export default {
         warning: null,
       },
       login: {
-        username: null,
+        email: null,
         password: null,
+        user_type: "farmer"
       },
       register: {
-        username: null,
+        first_name: null,
+        last_name: null,
+        company: null,
+        phone: null,
+        email: null,
         password1: null,
         password2: null,
-        email: null,
-        phone: null,
-        company: null,
+        address: null,
+        user_type: "farmer"
       },
     };
   },
@@ -176,15 +187,16 @@ export default {
     loginAction() {
       this.hideWarning();
       this.hideSuccess();
-      if (!this.login.username || !this.login.password) {
-        this.message.warning = "Please fill in the username and password.";
+      if (!this.login.email || !this.login.password) {
+        this.message.warning = "Please fill in the email and password.";
         return;
       } else {
-        this.$axios.post("/login", this.login).then((res) => {
+        this.$axios.post("auth/login", this.login).then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             this.$session.start();
-            this.$session.set("userName", result.data[0]);
+            this.$session.set("user", result.data);
+            this.message.success = result.data;
             this.redirect();
           } else {
             this.message.warning = result.message;
@@ -195,33 +207,57 @@ export default {
     registerAction() {
       this.hideWarning();
       this.hideSuccess();
+
       let requireInput = [];
-      if (!this.register.username) {
-        requireInput.push("username");
+      let passwordMatch = null;
+
+      if (!this.register.first_name) {
+        requireInput.push("First name");
       }
-      if (!this.register.password1) {
-        requireInput.push("password");
-      }
-      if (!this.register.password2) {
-        requireInput.push("confirm password");
-      }
-      if (!this.register.email) {
-        requireInput.push("email");
-      }
-      if (!this.register.phone) {
-        requireInput.push("phone");
+      if (!this.register.last_name) {
+        requireInput.push("Last name");
       }
       if (!this.register.company) {
-        requireInput.push("company");
+        requireInput.push("Company");
       }
-      if (requireInput.length > 0) {
-        this.message.warning = "Please fill: " + requireInput.join(", ") + ".";
+      if (!this.register.email) {
+        requireInput.push("Email");
+      }
+      if (!this.register.phone) {
+        requireInput.push("Phone");
+      }
+      if (!this.register.password1) {
+        requireInput.push("Password");
+      }
+      if (!this.register.password2) {
+        requireInput.push("Confirm password");
+      }
+      if (!this.register.address) {
+        requireInput.push("Address");
+      }
+      if (this.register.password1 && this.register.password2) {
+        passwordMatch =
+          this.register.password1 !== this.register.password2
+            ? "Passwords don't match."
+            : "";
+      }
+
+      if (requireInput.length > 0 || passwordMatch) {
+        this.message.warning = "";
+
+        if (requireInput.length > 0) {
+          this.message.warning += "Please fill: " + requireInput.join(", ") + ". ";
+        }
+        if (passwordMatch != "") {
+          this.message.warning += passwordMatch;
+        }
+
         return;
       } else {
-        this.$axios.post("/register", this.register).then((res) => {
+        this.$axios.post("auth/register", this.register).then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.login.username = this.register.username;
+            this.login.email = this.register.email;
             this.login.password = this.register.password1;
             this.signUp = false;
             this.message.success = "Your account was created!";
@@ -231,7 +267,7 @@ export default {
         });
       }
     },
-    toggleForms(){
+    toggleForms() {
       this.signUp = !this.signUp;
       this.hideWarning();
     },
