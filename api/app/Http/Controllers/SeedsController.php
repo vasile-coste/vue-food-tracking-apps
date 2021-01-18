@@ -69,9 +69,30 @@ class SeedsController extends Controller
      */
     public function updateSeed(Request $request)
     {
+        $data = $request->toArray();
+
+        if (!isset($data['name']) || $data['name'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Please enter Seed Name."
+            ]);
+        }
+        if (!isset($data['user_id']) || $data['user_id'] == "" || !isset($data['id']) || $data['id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        // update seed name
+        Seeds::where('id', $data['id'])
+            ->update([
+                'name' => $data['name']
+            ]);
+
         return response()->json([
-            "success" => false,
-            "message" => "Not implemented"
+            "success" => true,
+            "message" => "Seed name to " . $data['name'] . " updated!"
         ]);
     }
 

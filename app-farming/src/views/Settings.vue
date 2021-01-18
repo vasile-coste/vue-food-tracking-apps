@@ -40,7 +40,7 @@
             type="button"
             class="btn btn-light m-1"
             data-toggle="modal"
-            @click="openModalSeed(false)"
+            @click="openModalSeed(false, null)"
           >
             New Seed
           </button>
@@ -53,14 +53,39 @@
             New Seeding Company
           </button>
           <div class="row">
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-5 col-sm-12">
               <h3 class="settingsTitle">Seeds</h3>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in seeds" :key="index">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ item.name }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-link"
+                        @click="openModalSeed(item, index)"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-7 col-sm-12">
               <h3 class="settingsTitle">Seeding Companies</h3>
             </div>
           </div>
         </div>
+
         <div
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'fertilizing' }"
@@ -79,6 +104,7 @@
 
       <!-- /container div -->
     </div>
+
     <div
       class="modal fade"
       id="seedForm"
@@ -141,6 +167,7 @@ export default {
         name: null,
         obj: null,
       },
+      index: null,
       seeds: [],
     };
   },
@@ -148,7 +175,18 @@ export default {
     changeAction(action) {
       this.actionName = action;
     },
-    openModalSeed(data) {
+    loadSeeds() {
+      this.$axios.get("farming/seeds/" + this.user.id).then((res) => {
+        let result = JSON.parse(res.request.response);
+        if (result.success) {
+          this.seeds = result.data;
+          this.resetData();
+        } else {
+          this.showWarning(result.message);
+        }
+      });
+    },
+    openModalSeed(data, index) {
       if (data === false) {
         /** prepare form for add */
         this.seedForm.title = "New Seed";
@@ -157,8 +195,9 @@ export default {
       } else {
         /** prepare form for edit */
         this.seedForm.title = "Update Seed";
-        this.seedForm.name = null; // todo add value here
-        this.seedForm.obj = null; // todo add value here
+        this.seedForm.name = data.name;
+        this.seedForm.obj = data;
+        this.index = index;
       }
 
       /** show modal */
@@ -174,7 +213,7 @@ export default {
       if (this.seedForm.obj != null) {
         /** prepare form for update */
         urlPart = "update";
-        seedObj.id = ""; //todo add seed id
+        seedObj.id = this.seedForm.obj.id;
       }
 
       if (!seedObj.name || seedObj.name.length == 0) {
@@ -186,7 +225,13 @@ export default {
         let result = JSON.parse(res.request.response);
         if (result.success) {
           this.showSuccess(result.message);
-          this.seeds.push(result.data);
+          if (this.seedForm.obj == null) {
+          /** add the new seed to our obj */
+            this.seeds.push(result.data);
+          } else {
+            /** update the seed name from obj */
+            this.seeds[this.index].name = seedObj.name;
+          }
           $("#seedForm").modal("hide");
           this.resetData();
         } else {
@@ -216,6 +261,8 @@ export default {
       });
     },
   },
-  mounted() {},
+  mounted() {
+    this.loadSeeds();
+  },
 };
 </script>
