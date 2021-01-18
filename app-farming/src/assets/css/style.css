@@ -93,6 +93,12 @@
     background-size: cover;
 }
 
+.headerMenu-title {
+    font-size: 24.6px;
+    padding: 28px;
+    color:#fff;
+}
+
 .submenuBtn {
     text-align: center;
     display: inline-block;

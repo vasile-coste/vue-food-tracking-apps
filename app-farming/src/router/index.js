@@ -16,10 +16,16 @@ const routes = [{
             import ("../views/Auth.vue")
     },
     {
+        path: "/settings",
+        name: "Settings",
+        component: () =>
+            import ("../views/Settings.vue")
+    },
+    {
         path: "/profile",
         name: "Profile",
         component: () =>
-            import ("../views/Auth.vue")
+            import ("../views/Profile.vue")
     },
     {
         //path: ":catchAll(.*)",

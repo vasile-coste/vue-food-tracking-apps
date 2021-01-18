@@ -1,11 +1,11 @@
 <template>
-  <div id="profile">
-    <NavBar location="profile" />
+  <div id="settings">
+    <NavBar location="settings" />
 
     <!-- rest of the page here -->
     <div class="headerMenu">
       <div class="container">
-        <h2 class="headerMenu-title">Profile</h2>
+        <h2 class="headerMenu-title">Settings</h2>
       </div>
     </div>
   </div>
@@ -14,7 +14,7 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 export default {
-  name: "Profile",
+  name: "Settings",
   components: {
     NavBar,
   },
