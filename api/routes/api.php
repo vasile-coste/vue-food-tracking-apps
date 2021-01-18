@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SeedsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,18 +20,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+/** User */
 Route::post('/auth/register', [UserController::class, 'register']);
 Route::post('/auth/login', [UserController::class, 'login']);
 
-// Route::post('auth/register', 'UserController@register');
-// Route::get('auth/register', 'UserController@index');
+/** Farming Seeds */
+Route::get('/farming/seeds/{user_id}', [SeedsController::class, 'seeds']);
+Route::post('/farming/seeds/add', [SeedsController::class, 'newSeed']);
+Route::post('/farming/seeds/update', [SeedsController::class, 'updateSeed']);
+Route::post('/farming/seeds/delete', [SeedsController::class, 'deleteSeed']);
 
-// // update user data
-// Route::post('auth/{id}', 'UserController@update');
-
-// // get user data
-// Route::get('auth/{id}', 'UserController@getUser');
-
-// //login
-// Route::post('auth/login', 'UserController@login');

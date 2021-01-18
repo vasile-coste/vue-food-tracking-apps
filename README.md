@@ -29,6 +29,7 @@
 - `npm i vue-router`
 - `npm i vue-session` add session to project
 - `npm i vuex`
+- `npm i vue-notification` notification system
 - `npm i bootstrap` add boostrap to project
 - `npm i jquery`
 - `npm i popper.js`

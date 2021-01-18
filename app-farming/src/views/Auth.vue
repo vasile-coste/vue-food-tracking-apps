@@ -1,27 +1,6 @@
 <template>
   <div class="authBackground">
     <div class="authBox">
-      <div
-        class="alert alert-warning alert-dismissible fade show"
-        role="alert"
-        v-if="message.warning"
-      >
-        {{ message.warning }}
-        <button type="button" class="close" aria-label="Close" @click="hideWarning">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div
-        class="alert alert-success alert-dismissible fade show"
-        role="alert"
-        v-if="message.success"
-      >
-        {{ message.success }}
-        <button type="button" class="close" aria-label="Close" @click="hideSuccess">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
       <!-- Login form -->
       <form class="loginForm" :class="{ activeForm: !signUp }">
         <div class="row authHeader">
@@ -161,14 +140,10 @@ export default {
   data() {
     return {
       signUp: false,
-      message: {
-        success: null,
-        warning: null,
-      },
       login: {
         email: null,
         password: null,
-        user_type: "farmer"
+        user_type: "farmer",
       },
       register: {
         first_name: null,
@@ -179,16 +154,14 @@ export default {
         password1: null,
         password2: null,
         address: null,
-        user_type: "farmer"
+        user_type: "farmer",
       },
     };
   },
   methods: {
     loginAction() {
-      this.hideWarning();
-      this.hideSuccess();
       if (!this.login.email || !this.login.password) {
-        this.message.warning = "Please fill in the email and password.";
+        this.showWarning("Please fill in the email and password.");
         return;
       } else {
         this.$axios.post("auth/login", this.login).then((res) => {
@@ -196,18 +169,16 @@ export default {
           if (result.success) {
             this.$session.start();
             this.$session.set("user", result.data);
-            this.message.success = result.data;
+            this.showSuccess(result.message);
             this.redirect();
           } else {
             this.message.warning = result.message;
+            this.showWarning(result.message);
           }
         });
       }
     },
     registerAction() {
-      this.hideWarning();
-      this.hideSuccess();
-
       let requireInput = [];
       let passwordMatch = null;
 
@@ -243,14 +214,16 @@ export default {
       }
 
       if (requireInput.length > 0 || passwordMatch) {
-        this.message.warning = "";
+        let errMsg = "";
 
         if (requireInput.length > 0) {
-          this.message.warning += "Please fill: " + requireInput.join(", ") + ". ";
+          errMsg += "Please fill: " + requireInput.join(", ") + ". ";
         }
-        if (passwordMatch != "") {
-          this.message.warning += passwordMatch;
+        if (passwordMatch) {
+          errMsg += passwordMatch;
         }
+
+        this.showWarning(errMsg);
 
         return;
       } else {
@@ -260,25 +233,32 @@ export default {
             this.login.email = this.register.email;
             this.login.password = this.register.password1;
             this.signUp = false;
-            this.message.success = "Your account was created!";
+            this.showSuccess(result.message);
           } else {
-            this.message.warning = result.message;
+            this.showWarning(result.message);
           }
         });
       }
     },
     toggleForms() {
       this.signUp = !this.signUp;
-      this.hideWarning();
     },
     redirect() {
       this.$router.push({ name: "Home" });
     },
-    hideWarning() {
-      this.message.warning = null;
+    showWarning(msg) {
+      this.$notify({
+        group: "app",
+        text: msg,
+        type: "error",
+      });
     },
-    hideSuccess() {
-      this.message.success = null;
+    showSuccess(msg) {
+      this.$notify({
+        group: "app",
+        text: msg,
+        type: "success",
+      });
     },
   },
 };
