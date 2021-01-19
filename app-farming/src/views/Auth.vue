@@ -164,18 +164,23 @@ export default {
         this.showWarning("Please fill in the email and password.");
         return;
       } else {
-        this.$axios.post("auth/login", this.login).then((res) => {
-          let result = JSON.parse(res.request.response);
-          if (result.success) {
-            this.$session.start();
-            this.$session.set("user", result.data);
-            this.showSuccess(result.message);
-            this.redirect();
-          } else {
-            this.message.warning = result.message;
-            this.showWarning(result.message);
-          }
-        });
+        this.$axios
+          .post("auth/login", this.login)
+          .then((res) => {
+            let result = JSON.parse(res.request.response);
+            if (result.success) {
+              this.$session.start();
+              this.$session.set("user", result.data);
+              this.showSuccess(result.message);
+              this.redirect();
+            } else {
+              this.message.warning = result.message;
+              this.showWarning(result.message);
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
       }
     },
     registerAction() {
