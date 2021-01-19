@@ -18,7 +18,6 @@ class CreateSeedingCompaniesTable extends Migration
             $table->integer('user_id');
             $table->integer('seed_id');
             $table->string('company_name');
-            $table->string('company_address');
             $table->timestamps();
         });
     }
