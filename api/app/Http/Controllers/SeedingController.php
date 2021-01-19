@@ -6,7 +6,7 @@ use App\Models\Seeds;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class SeedsController extends Controller
+class SeedingController extends Controller
 {
     /**
      * get all seeds for current user
@@ -97,13 +97,23 @@ class SeedsController extends Controller
     }
 
     /**
-     * Delete seed
+     * get all seed companies by user id
      */
-    public function deleteSeed(Request $request)
+    public function seedCompanies(int $user_id)
     {
         return response()->json([
             "success" => false,
-            "message" => "Not implemented"
+            "message" => "Not implemented - seedCompanies"
+        ]);
+    }
+    /**
+     * get all seed companies by user id and seed id
+     */
+    public function seedCompaniesBySeed(int $user_id, int $seed_id)
+    {
+        return response()->json([
+            "success" => false,
+            "message" => "Not implemented - seedCompaniesBySeed"
         ]);
     }
 }

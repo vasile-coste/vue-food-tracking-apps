@@ -186,7 +186,7 @@ export default {
   },
   methods: {
     loadSeeds() {
-      this.$axios.get("farming/seeds/" + this.user.id).then((res) => {
+      this.$axios.get("farming/seeding/seed/" + this.user.id).then((res) => {
         let result = JSON.parse(res.request.response);
         if (result.success) {
           this.seeds = result.data;
@@ -236,7 +236,7 @@ export default {
         }
       }
 
-      this.$axios.post("farming/seeds/" + urlPart, seedObj).then((res) => {
+      this.$axios.post("farming/seeding/seed/" + urlPart, seedObj).then((res) => {
         let result = JSON.parse(res.request.response);
         if (result.success) {
           this.showSuccess(result.message);

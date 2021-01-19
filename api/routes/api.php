@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\SeedsController;
+use App\Http\Controllers\SeedingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +24,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/auth/register', [UserController::class, 'register']);
 Route::post('/auth/login', [UserController::class, 'login']);
 
-/** Farming Seeds */
-Route::get('/farming/seeds/{user_id}', [SeedsController::class, 'seeds']);
-Route::post('/farming/seeds/add', [SeedsController::class, 'newSeed']);
-Route::post('/farming/seeds/update', [SeedsController::class, 'updateSeed']);
-Route::post('/farming/seeds/delete', [SeedsController::class, 'deleteSeed']);
+/** Farming Seeding */
+Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
+Route::post('/farming/seeding/seed/add', [SeedingController::class, 'newSeed']);
+Route::post('/farming/seeding/seed/update', [SeedingController::class, 'updateSeed']);
+Route::get('/farming/seeding/companies/{user_id}', [SeedingController::class, 'seedCompanies']);
+Route::get('/farming/seeding/companies/{user_id}/{seed_id}', [SeedingController::class, 'seedCompaniesBySeed']);
 
