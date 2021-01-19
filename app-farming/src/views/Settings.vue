@@ -48,7 +48,7 @@
             type="button"
             class="btn btn-light m-1"
             data-toggle="modal"
-            data-target="#seedCompanyForm"
+            @click="openModalSeedCompany(false, null)"
           >
             New Seeding Company
           </button>
@@ -82,6 +82,34 @@
             </div>
             <div class="col-md-7 col-sm-12">
               <h3 class="settingsTitle">Seeding Companies</h3>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Company</th>
+                    <th scope="col">Seed</th>
+                    <th scope="col">Address</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in seedCompanies" :key="index">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ item.company }}</td>
+                    <td>{{ item.seed }}</td>
+                    <td>{{ item.address }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-link"
+                        @click="openModalSeedCompany(item, index)"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -145,6 +173,41 @@
         </div>
       </div>
     </div>
+    
+    <div
+      class="modal fade"
+      id="seedCompanyForm"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="seedCompanyFormModal"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">
+              {{ seedCompanyForm.title }}
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="form-group">data</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" @click="saveModalSeedCompany">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- /page div -->
   </div>
@@ -167,8 +230,16 @@ export default {
         name: null,
         obj: null,
       },
+      seedCompanyForm: {
+        title: null,
+        name: null,
+        seed: null,
+        address: null,
+        obj: null,
+      },
       index: null,
       seeds: [],
+      seedCompanies: [],
     };
   },
   methods: {
@@ -220,7 +291,7 @@ export default {
         /** prepare form for update */
         urlPart = "update";
         seedObj.id = this.seedForm.obj.id;
-        if(seedObj.name == this.seedForm.obj.name){
+        if (seedObj.name == this.seedForm.obj.name) {
           this.showSuccess("Nothing to update!");
           return;
         }
@@ -231,7 +302,7 @@ export default {
         if (result.success) {
           this.showSuccess(result.message);
           if (this.seedForm.obj == null) {
-          /** add the new seed to our obj */
+            /** add the new seed to our obj */
             this.seeds.push(result.data);
           } else {
             /** update the seed name from obj */
@@ -244,10 +315,46 @@ export default {
         }
       });
     },
+    openModalSeedCompany(data, index) {
+      if (data === false) {
+        /** prepare form for add */
+        this.seedCompanyForm = {
+          title: "New Company",
+          name: null,
+          seed: null,
+          address: null,
+          obj: null,
+        };
+      } else {
+        /** prepare form for edit */
+        this.seedForm.title = "Update Seed";
+        this.seedCompanyForm = {
+          title: "New Company",
+          name: null,
+          seed: null,
+          address: null,
+          obj: data,
+        };
+        this.index = index;
+      }
+
+      /** show modal */
+      $("#seedCompanyForm").modal("show");
+    },
+    saveModalSeedCompany() {
+      $("#seedCompanyForm").modal("hide");
+    },
     resetData() {
       this.seedForm = {
         title: null,
         name: null,
+        obj: null,
+      };
+      this.seedCompanyForm = {
+        title: null,
+        name: null,
+        seed: null,
+        address: null,
         obj: null,
       };
     },
