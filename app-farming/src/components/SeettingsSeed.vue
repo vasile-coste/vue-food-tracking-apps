@@ -46,6 +46,7 @@
             </tbody>
           </table>
         </div>
+
         <div class="col-md-7 col-sm-12">
           <h3 class="settingsTitle">Seeding Companies</h3>
           <table class="table table-hover">
@@ -54,16 +55,14 @@
                 <th scope="col">#</th>
                 <th scope="col">Company</th>
                 <th scope="col">Seed</th>
-                <th scope="col">Address</th>
                 <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in seedCompanies" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
-                <td>{{ item.company }}</td>
-                <td>{{ item.seed }}</td>
-                <td>{{ item.address }}</td>
+                <td>{{ item.company_name }}</td>
+                <td>{{ item.seed_name }}</td>
                 <td>
                   <button
                     type="button"
@@ -142,7 +141,46 @@
           </div>
           <div class="modal-body">
             <div class="container-fluid">
-              <div class="form-group">data</div>
+              <div class="form-group">
+                <label for="selectdSeed" class="col-form-label">Seed:</label>
+                <select
+                  type="text"
+                  class="form-control"
+                  id="selectdSeed"
+                  v-model="seedCompanyForm.seed_id"
+                >
+                  <option
+                    v-for="(item, index) in seeds"
+                    :key="index"
+                    v-bind:value="item.id"
+                  >
+                    {{ item.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="companyName" class="col-form-label">Company Name:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="companyName"
+                  list="companies"
+                  aria-describedby="companyHelpBlock"
+                  v-model="seedCompanyForm.company_name"
+                />
+                <datalist id="companies">
+                  <option
+                    v-for="(item, index) in seedCompanies"
+                    :key="index"
+                    v-bind:value="item.company_name"
+                  >
+                    {{ item.company_name }}
+                  </option>
+                </datalist>
+                <small id="companyHelpBlock" class="form-text text-muted">
+                  Enter a name or choose one from the list(if available).
+                </small>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -174,9 +212,8 @@ export default {
       },
       seedCompanyForm: {
         title: null,
-        name: null,
-        seed: null,
-        address: null,
+        seed_id: null,
+        company_name: null,
         obj: null,
       },
       index: null,
@@ -254,24 +291,32 @@ export default {
         }
       });
     },
+    loadSeedCompanies() {
+      this.$axios.get("farming/seeding/companies/" + this.user.id).then((res) => {
+        let result = JSON.parse(res.request.response);
+        if (result.success) {
+          this.seedCompanies = result.data;
+          this.resetData();
+        } else {
+          this.showWarning(result.message);
+        }
+      });
+    },
     openModalSeedCompany(data, index) {
       if (data === false) {
         /** prepare form for add */
         this.seedCompanyForm = {
           title: "New Company",
-          name: null,
-          seed: null,
-          address: null,
+          company_name: null,
+          seed_id: null,
           obj: null,
         };
       } else {
         /** prepare form for edit */
-        this.seedForm.title = "Update Seed";
         this.seedCompanyForm = {
-          title: "New Company",
-          name: null,
-          seed: null,
-          address: null,
+          title: "Update Company",
+          company_name: data.company_name,
+          seed_id: data.seed_id,
           obj: data,
         };
         this.index = index;
@@ -281,7 +326,62 @@ export default {
       $("#seedCompanyForm").modal("show");
     },
     saveModalSeedCompany() {
-      $("#seedCompanyForm").modal("hide");
+      /** prepare form for inserting */
+      let urlPart = "add";
+      let seedCompanyObj = {
+        company_name: this.seedCompanyForm.company_name,
+        user_id: this.user.id,
+        seed_id: this.seedCompanyForm.seed_id,
+      };
+
+      let err = false;
+
+      if (!seedCompanyObj.seed_id || seedCompanyObj.seed_id.length == 0) {
+        this.showWarning("Please select a Seed.");
+        err = true;
+      }
+
+      if (!seedCompanyObj.company_name || seedCompanyObj.company_name.length == 0) {
+        this.showWarning("Please complete Company Name.");
+        err = true;
+      }
+
+      if (err) {
+        return;
+      }
+
+      if (this.seedCompanyForm.obj != null) {
+        /** prepare form for update */
+        urlPart = "update";
+        seedCompanyObj.id = this.seedCompanyForm.obj.id;
+        if (
+          seedCompanyObj.company_name == this.seedCompanyForm.obj.company_name &&
+          seedCompanyObj.seed_id == this.seedCompanyForm.obj.seed_id
+        ) {
+          this.showSuccess("Nothing to update!");
+          return;
+        }
+      }
+
+      this.$axios
+        .post("farming/seeding/companies/" + urlPart, seedCompanyObj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.showSuccess(result.message);
+            if (this.seedCompanyForm.obj == null) {
+              /** add the new seed to our obj */
+              this.seedCompanies.push(result.data);
+            } else {
+              /** update the seed name from obj */
+              this.seedCompanies[this.index] = result.data;
+            }
+            $("#seedCompanyForm").modal("hide");
+            this.resetData();
+          } else {
+            this.showWarning(result.message);
+          }
+        });
     },
     resetData() {
       this.seedForm = {
@@ -291,9 +391,8 @@ export default {
       };
       this.seedCompanyForm = {
         title: null,
-        name: null,
-        seed: null,
-        address: null,
+        seed_id: null,
+        company_name: null,
         obj: null,
       };
     },
@@ -308,6 +407,7 @@ export default {
   },
   mounted() {
     this.loadSeeds();
+    this.loadSeedCompanies();
   },
 };
 </script>
