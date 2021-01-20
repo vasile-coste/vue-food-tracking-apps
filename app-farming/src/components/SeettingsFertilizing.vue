@@ -1,26 +1,26 @@
 <template>
-  <div id="SettingsSeed">
+  <div id="Settingsfertilizer">
     <div class="col-md-12 col-sm-12">
-      <h2 class="actionHeader">Seeding Settings</h2>
+      <h2 class="actionHeader">Fertilizing Settings</h2>
       <button
         type="button"
         class="btn btn-light m-1"
         data-toggle="modal"
-        @click="openModalSeed(false, null)"
+        @click="openModalFertilizer(false, null)"
       >
-        New Seed
+        New fertilizer
       </button>
       <button
         type="button"
         class="btn btn-light m-1"
         data-toggle="modal"
-        @click="openModalSeedCompany(false, null)"
+        @click="openModalFertilizerCompany(false, null)"
       >
-        New Seeding Company
+        New Fertilizing Company
       </button>
       <div class="row">
         <div class="col-md-5 col-sm-12">
-          <h3 class="settingsTitle">Seeds</h3>
+          <h3 class="settingsTitle">Fertilizers</h3>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -30,14 +30,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in seeds" :key="index">
+              <tr v-for="(item, index) in fertilizers" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ item.name }}</td>
                 <td>
                   <button
                     type="button"
                     class="btn btn-link"
-                    @click="openModalSeed(item, index)"
+                    @click="openModalFertilizer(item, index)"
                   >
                     Edit
                   </button>
@@ -48,30 +48,30 @@
         </div>
 
         <div class="col-md-7 col-sm-12">
-          <h3 class="settingsTitle">Seeding Companies</h3>
+          <h3 class="settingsTitle">Fertilizing Companies</h3>
           <table class="table table-hover">
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Company</th>
-                <th scope="col">Seed</th>
+                <th scope="col">Fertilizer</th>
                 <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in seedCompanies" :key="index">
+              <tr v-for="(item, index) in fertilizerCompanies" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ item.company_name }}</td>
-                <td>{{ item.seed_name }}</td>
+                <td>{{ item.fertilizer_name }}</td>
                 <td>
                   <button
                     type="button"
                     class="btn btn-link"
-                    @click="openModalSeedCompany(item, index)"
+                    @click="openModalFertilizerCompany(item, index)"
                   >
                     Edit
                   </button>
-                  <button type="button" class="btn btn-danger" @click="deleteSeedCompany(item.id, index)">Delete</button>
+                  <button type="button" class="btn btn-danger" @click="deleteFertilizerCompany(item.id, index)">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -83,16 +83,16 @@
     <!-- Modals -->
     <div
       class="modal fade"
-      id="seedForm"
+      id="fertilizerForm"
       tabindex="-1"
       role="dialog"
-      aria-labelledby="seedFormModal"
+      aria-labelledby="fertilizerFormModal"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ seedForm.title }}</h5>
+            <h5 class="modal-title">{{ fertilizerForm.title }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -100,12 +100,12 @@
           <div class="modal-body">
             <div class="container-fluid">
               <div class="form-group">
-                <label for="seedName" class="col-form-label">Seed Name:</label>
+                <label for="fertilizerName" class="col-form-label">Fertilizer Name:</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="seedName"
-                  v-model="seedForm.name"
+                  id="fertilizerName"
+                  v-model="fertilizerForm.name"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button type="button" class="btn btn-primary" @click="saveModalSeed">
+            <button type="button" class="btn btn-primary" @click="saveModalFertilizer">
               Save
             </button>
           </div>
@@ -124,17 +124,17 @@
 
     <div
       class="modal fade"
-      id="seedCompanyForm"
+      id="fertilizerCompanyForm"
       tabindex="-1"
       role="dialog"
-      aria-labelledby="seedCompanyFormModal"
+      aria-labelledby="fertilizerCompanyFormModal"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">
-              {{ seedCompanyForm.title }}
+              {{ fertilizerCompanyForm.title }}
             </h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -143,15 +143,15 @@
           <div class="modal-body">
             <div class="container-fluid">
               <div class="form-group">
-                <label for="selectdSeed" class="col-form-label">Seed:</label>
+                <label for="selectdFertilizer" class="col-form-label">Fertilizer:</label>
                 <select
                   type="text"
                   class="form-control"
-                  id="selectdSeed"
-                  v-model="seedCompanyForm.seed_id"
+                  id="selectdFertilizer"
+                  v-model="fertilizerCompanyForm.fertilizer_id"
                 >
                   <option
-                    v-for="(item, index) in seeds"
+                    v-for="(item, index) in fertilizers"
                     :key="index"
                     v-bind:value="item.id"
                   >
@@ -165,14 +165,14 @@
                   type="text"
                   class="form-control"
                   id="companyName"
-                  list="SeedCompanies"
+                  list="FertilizerCompanies"
                   aria-describedby="companyHelpBlock"
                   autocomplete="off"
-                  v-model="seedCompanyForm.company_name"
+                  v-model="fertilizerCompanyForm.company_name"
                 />
-                <datalist id="SeedCompanies">
+                <datalist id="FertilizerCompanies">
                   <option
-                    v-for="(item, index) in seedCompanies"
+                    v-for="(item, index) in fertilizerCompanies"
                     :key="index"
                     v-bind:value="item.company_name"
                   >
@@ -189,7 +189,7 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button type="button" class="btn btn-primary" @click="saveModalSeedCompany">
+            <button type="button" class="btn btn-primary" @click="saveModalFertilizerCompany">
               Save
             </button>
           </div>
@@ -202,148 +202,148 @@
 <script>
 import $ from "jquery";
 export default {
-  name: "SeettingsSeed",
+  name: "SeettingsFertilizing",
   props: {},
   data() {
     return {
       user: this.$session.get("user"),
-      seedForm: {
+      fertilizerForm: {
         title: null,
         name: null,
         obj: null,
       },
-      seedCompanyForm: {
+      fertilizerCompanyForm: {
         title: null,
-        seed_id: null,
+        fertilizer_id: null,
         company_name: null,
         obj: null,
       },
       index: null,
-      seeds: [],
-      seedCompanies: [],
+      fertilizers: [],
+      fertilizerCompanies: [],
     };
   },
   methods: {
-    loadSeeds() {
-      this.$axios.get("farming/seeding/seed/" + this.user.id).then((res) => {
+    loadFertilizers() {
+      this.$axios.get("farming/fertilizing/fertilizer/" + this.user.id).then((res) => {
         let result = JSON.parse(res.request.response);
         if (result.success) {
-          this.seeds = result.data;
+          this.fertilizers = result.data;
           this.resetData();
         } else {
           this.showWarning(result.message);
         }
       });
     },
-    openModalSeed(data, index) {
+    openModalFertilizer(data, index) {
       if (data === false) {
         /** prepare form for add */
-        this.seedForm.title = "New Seed";
-        this.seedForm.name = null;
-        this.seedForm.obj = null;
+        this.fertilizerForm.title = "New fertilizer";
+        this.fertilizerForm.name = null;
+        this.fertilizerForm.obj = null;
       } else {
         /** prepare form for edit */
-        this.seedForm.title = "Update Seed";
-        this.seedForm.name = data.name;
-        this.seedForm.obj = data;
+        this.fertilizerForm.title = "Update fertilizer";
+        this.fertilizerForm.name = data.name;
+        this.fertilizerForm.obj = data;
         this.index = index;
       }
 
       /** show modal */
-      $("#seedForm").modal("show");
+      $("#fertilizerForm").modal("show");
     },
-    saveModalSeed() {
+    saveModalFertilizer() {
       /** prepare form for inserting */
       let urlPart = "add";
-      let seedObj = {
-        name: this.seedForm.name,
+      let fertilizerObj = {
+        name: this.fertilizerForm.name,
         user_id: this.user.id,
       };
 
-      if (!seedObj.name || seedObj.name.length == 0) {
-        this.showWarning("Please complete Seed Name.");
+      if (!fertilizerObj.name || fertilizerObj.name.length == 0) {
+        this.showWarning("Please complete Fertilizer Name.");
         return;
       }
 
-      if (this.seedForm.obj != null) {
+      if (this.fertilizerForm.obj != null) {
         /** prepare form for update */
         urlPart = "update";
-        seedObj.id = this.seedForm.obj.id;
-        if (seedObj.name == this.seedForm.obj.name) {
+        fertilizerObj.id = this.fertilizerForm.obj.id;
+        if (fertilizerObj.name == this.fertilizerForm.obj.name) {
           this.showSuccess("Nothing to update!");
           return;
         }
       }
 
-      this.$axios.post("farming/seeding/seed/" + urlPart, seedObj).then((res) => {
+      this.$axios.post("farming/fertilizing/fertilizer/" + urlPart, fertilizerObj).then((res) => {
         let result = JSON.parse(res.request.response);
         if (result.success) {
           this.showSuccess(result.message);
-          if (this.seedForm.obj == null) {
-            /** add the new seed to our obj */
-            this.seeds.push(result.data);
+          if (this.fertilizerForm.obj == null) {
+            /** add the new fertilizer to our obj */
+            this.fertilizers.push(result.data);
           } else {
-            /** update the seed name from obj */
-            this.seeds[this.index].name = seedObj.name;
+            /** update the fertilizer name from obj */
+            this.fertilizers[this.index].name = fertilizerObj.name;
           }
-          $("#seedForm").modal("hide");
+          $("#fertilizerForm").modal("hide");
           this.resetData();
         } else {
           this.showWarning(result.message);
         }
       });
     },
-    loadSeedCompanies() {
-      this.$axios.get("farming/seeding/companies/" + this.user.id).then((res) => {
+    loadFertilizerCompanies() {
+      this.$axios.get("farming/fertilizing/companies/" + this.user.id).then((res) => {
         let result = JSON.parse(res.request.response);
         if (result.success) {
-          this.seedCompanies = result.data;
+          this.fertilizerCompanies = result.data;
           this.resetData();
         } else {
           this.showWarning(result.message);
         }
       });
     },
-    openModalSeedCompany(data, index) {
+    openModalFertilizerCompany(data, index) {
       if (data === false) {
         /** prepare form for add */
-        this.seedCompanyForm = {
+        this.fertilizerCompanyForm = {
           title: "New Company",
           company_name: null,
-          seed_id: null,
+          fertilizer_id: null,
           obj: null,
         };
       } else {
         /** prepare form for edit */
-        this.seedCompanyForm = {
+        this.fertilizerCompanyForm = {
           title: "Update Company",
           company_name: data.company_name,
-          seed_id: data.seed_id,
+          fertilizer_id: data.fertilizer_id,
           obj: data,
         };
         this.index = index;
       }
 
       /** show modal */
-      $("#seedCompanyForm").modal("show");
+      $("#fertilizerCompanyForm").modal("show");
     },
-    saveModalSeedCompany() {
+    saveModalFertilizerCompany() {
       /** prepare form for inserting */
       let urlPart = "add";
-      let seedCompanyObj = {
-        company_name: this.seedCompanyForm.company_name,
+      let fertilizerCompanyObj = {
+        company_name: this.fertilizerCompanyForm.company_name,
         user_id: this.user.id,
-        seed_id: this.seedCompanyForm.seed_id,
+        fertilizer_id: this.fertilizerCompanyForm.fertilizer_id,
       };
 
       let err = false;
 
-      if (!seedCompanyObj.seed_id || seedCompanyObj.seed_id.length == 0) {
-        this.showWarning("Please select a Seed.");
+      if (!fertilizerCompanyObj.fertilizer_id || fertilizerCompanyObj.fertilizer_id.length == 0) {
+        this.showWarning("Please select a fertilizer.");
         err = true;
       }
 
-      if (!seedCompanyObj.company_name || seedCompanyObj.company_name.length == 0) {
+      if (!fertilizerCompanyObj.company_name || fertilizerCompanyObj.company_name.length == 0) {
         this.showWarning("Please complete Company Name.");
         err = true;
       }
@@ -352,13 +352,13 @@ export default {
         return;
       }
 
-      if (this.seedCompanyForm.obj != null) {
+      if (this.fertilizerCompanyForm.obj != null) {
         /** prepare form for update */
         urlPart = "update";
-        seedCompanyObj.id = this.seedCompanyForm.obj.id;
+        fertilizerCompanyObj.id = this.fertilizerCompanyForm.obj.id;
         if (
-          seedCompanyObj.company_name == this.seedCompanyForm.obj.company_name &&
-          seedCompanyObj.seed_id == this.seedCompanyForm.obj.seed_id
+          fertilizerCompanyObj.company_name == this.fertilizerCompanyForm.obj.company_name &&
+          fertilizerCompanyObj.fertilizer_id == this.fertilizerCompanyForm.obj.fertilizer_id
         ) {
           this.showSuccess("Nothing to update!");
           return;
@@ -366,26 +366,26 @@ export default {
       }
 
       this.$axios
-        .post("farming/seeding/companies/" + urlPart, seedCompanyObj)
+        .post("farming/fertilizing/companies/" + urlPart, fertilizerCompanyObj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             this.showSuccess(result.message);
-            if (this.seedCompanyForm.obj == null) {
-              /** add the new seed to our obj */
-              this.seedCompanies.push(result.data);
+            if (this.fertilizerCompanyForm.obj == null) {
+              /** add the new fertilizer to our obj */
+              this.fertilizerCompanies.push(result.data);
             } else {
-              /** update the seed name from obj */
-              this.seedCompanies[this.index] = result.data;
+              /** update the fertilizer name from obj */
+              this.fertilizerCompanies[this.index] = result.data;
             }
-            $("#seedCompanyForm").modal("hide");
+            $("#fertilizerCompanyForm").modal("hide");
             this.resetData();
           } else {
             this.showWarning(result.message);
           }
         });
     },
-    deleteSeedCompany(id, index){
+    deleteFertilizerCompany(id, index){
       if(!confirm("Are you sure?")){
         return;
       }
@@ -395,12 +395,12 @@ export default {
         user_id:this.user.id
       }
       this.$axios
-        .post("farming/seeding/companies/delete" , obj)
+        .post("farming/fertilizing/companies/delete" , obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             this.showSuccess(result.message);
-            this.seedCompanies.splice(index, 1);
+            this.fertilizerCompanies.splice(index, 1);
             this.resetData();
           } else {
             this.showWarning(result.message);
@@ -408,14 +408,14 @@ export default {
         });
     },
     resetData() {
-      this.seedForm = {
+      this.fertilizerForm = {
         title: null,
         name: null,
         obj: null,
       };
-      this.seedCompanyForm = {
+      this.fertilizerCompanyForm = {
         title: null,
-        seed_id: null,
+        fertilizer_id: null,
         company_name: null,
         obj: null,
       };
@@ -430,8 +430,8 @@ export default {
     },
   },
   mounted() {
-    this.loadSeeds();
-    this.loadSeedCompanies();
+    this.loadFertilizers();
+    this.loadFertilizerCompanies();
   },
 };
 </script>

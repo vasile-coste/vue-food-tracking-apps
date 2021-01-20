@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SeedingController;
+use App\Http\Controllers\FertilizingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,15 +25,42 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/auth/register', [UserController::class, 'register']);
 Route::post('/auth/login', [UserController::class, 'login']);
 
-/** Farming Seeding */
-Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
-Route::post('/farming/seeding/seed/add', [SeedingController::class, 'newSeed']);
-Route::post('/farming/seeding/seed/update', [SeedingController::class, 'updateSeed']);
+// Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
+/** Farming */
+Route::group(['prefix' => 'farming'], function () {
 
-Route::get('/farming/seeding/companies/{user_id}', [SeedingController::class, 'seedCompanies']);
-Route::get('/farming/seeding/companies/{user_id}/{seed_id}', [SeedingController::class, 'seedCompaniesBySeed']);
-Route::post('/farming/seeding/companies/add', [SeedingController::class, 'newSeedCompanies']);
-Route::post('/farming/seeding/companies/update', [SeedingController::class, 'updateSeedCompanies']);
-Route::post('/farming/seeding/companies/delete', [SeedingController::class, 'deleteSeedCompanies']);
+    /** Seeding */
+    Route::group(['prefix' => 'seeding'], function () {
+        Route::group(['prefix' => 'seed'], function () {
+            Route::get('{user_id}', [SeedingController::class, 'seeds']);
+            Route::post('add', [SeedingController::class, 'newSeed']);
+            Route::post('update', [SeedingController::class, 'updateSeed']);
+        });
 
+        Route::group(['prefix' => 'companies'], function () {
+            Route::get('{user_id}', [SeedingController::class, 'companies']);
+            Route::get('{user_id}/{seed_id}', [SeedingController::class, 'companiesBySeed']);
+            Route::post('add', [SeedingController::class, 'newCompany']);
+            Route::post('update', [SeedingController::class, 'updateCompany']);
+            Route::post('delete', [SeedingController::class, 'deleteCompany']);
+        });
+    });
 
+    /** Frertilizing */
+    Route::group(['prefix' => 'fertilizing'], function () {
+        Route::group(['prefix' => 'fertilizer'], function () {
+            Route::get('{user_id}', [FertilizingController::class, 'fertilizers']);
+            Route::post('add', [FertilizingController::class, 'newFertilizer']);
+            Route::post('update', [FertilizingController::class, 'updateFertilizer']);
+        });
+
+        Route::group(['prefix' => 'companies'], function () {
+            Route::get('{user_id}', [FertilizingController::class, 'companies']);
+            Route::get('{user_id}/{fertilizer_id}', [FertilizingController::class, 'companiesByFertilizer']);
+            Route::post('add', [FertilizingController::class, 'newCompany']);
+            Route::post('update', [FertilizingController::class, 'updateCompany']);
+            Route::post('delete', [FertilizingController::class, 'deleteCompany']);
+        });
+    });
+
+});

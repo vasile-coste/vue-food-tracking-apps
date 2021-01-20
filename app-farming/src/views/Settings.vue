@@ -35,14 +35,20 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12 col-sm-12" :class="{ 'd-none': actionName != 'seeding' }">
-          <SeettingsSeed @showWarning="showWarning($event)" @showSuccess="showSuccess($event)" />
+          <SeettingsSeed
+            @showWarning="showWarning($event)"
+            @showSuccess="showSuccess($event)"
+          />
         </div>
 
         <div
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'fertilizing' }"
         >
-          <h2 class="actionHeader">Fertilizing Settings</h2>
+          <SeettingsFertilizing
+            @showWarning="showWarning($event)"
+            @showSuccess="showSuccess($event)"
+          />
         </div>
         <div
           class="col-md-12 col-sm-12"
@@ -64,11 +70,13 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import SeettingsSeed from "@/components/SeettingsSeed.vue";
+import SeettingsFertilizing from "@/components/SeettingsFertilizing.vue";
 export default {
   name: "Settings",
   components: {
     NavBar,
     SeettingsSeed,
+    SeettingsFertilizing,
   },
   data() {
     return {

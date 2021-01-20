@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SeedingCompany;
-use App\Models\Seeds;
+use App\Models\FertilizerCompanies;
+use App\Models\Fertilizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class SeedingController extends Controller
+class FertilizingController extends Controller
 {
     /**
-     * get all seeds for current user
+     * get all fertilizers for current user
      */
-    public function seeds(int $user_id)
+    public function fertilizers(int $user_id)
     {
-        $seeds = Seeds::where('user_id', $user_id)->orderBy('name', 'ASC')->get();
+        $fertilizers = Fertilizer::where('user_id', $user_id)->orderBy('name', 'ASC')->get();
 
         return response()->json([
             "success" => true,
-            "data" => $seeds->all()
+            "data" => $fertilizers->all()
         ]);
     }
 
     /**
-     * Create new seed
+     * Create new fertilizer
      */
-    public function newSeed(Request $request)
+    public function newFertilizer(Request $request)
     {
         $data = $request->toArray();
 
         if (!isset($data['name']) || $data['name'] == "") {
             return response()->json([
                 "success" => false,
-                "message" => "Please enter Seed Name."
+                "message" => "Please enter Fertilizer Name."
             ]);
         }
         if (!isset($data['user_id']) || $data['user_id'] == "") {
@@ -41,39 +41,39 @@ class SeedingController extends Controller
                 "message" => "Something is missing, please try again later."
             ]);
         }
-        $seeds = Seeds::where('user_id', $data['user_id'])->where('name', $data['name'])->get();
-        if ($seeds->count() > 0) {
+        $fertilizers = Fertilizer::where('user_id', $data['user_id'])->where('name', $data['name'])->get();
+        if ($fertilizers->count() > 0) {
             return response()->json([
                 "success" => false,
-                "message" => "Seed Name already exists."
+                "message" => "Fertilizer Name already exists."
             ]);
         }
 
-        // save seed
-        $save = new Seeds($data);
+        // save fertilizer
+        $save = new Fertilizer($data);
         $save->save(); //$save->id; get last inserted id row
 
-        // get last seed
-        $seed = Seeds::find($save->id);
+        // get last fertilizer
+        $fertilizer = Fertilizer::find($save->id);
 
         return response()->json([
             "success" => true,
-            "data" => $seed,
-            "message" => "Seed " . $data['name'] . " was added!"
+            "data" => $fertilizer,
+            "message" => "Fertilizer " . $data['name'] . " was added!"
         ]);
     }
 
     /**
-     * Update seed
+     * Update fertilizer
      */
-    public function updateSeed(Request $request)
+    public function updateFertilizer(Request $request)
     {
         $data = $request->toArray();
 
         if (!isset($data['name']) || $data['name'] == "") {
             return response()->json([
                 "success" => false,
-                "message" => "Please enter Seed Name."
+                "message" => "Please enter Fertilizer Name."
             ]);
         }
         if (!isset($data['user_id']) || $data['user_id'] == "" || !isset($data['id']) || $data['id'] == "") {
@@ -84,55 +84,55 @@ class SeedingController extends Controller
         }
 
         // update seed name
-        Seeds::where('id', $data['id'])
+        Fertilizer::where('id', $data['id'])
             ->update([
                 'name' => $data['name']
             ]);
 
         return response()->json([
             "success" => true,
-            "message" => "Seed name updated succesfully"
+            "message" => "Fertilizer name was updated succesfully!"
         ]);
     }
 
     /**
-     * get all seed companies by user id
+     * get all fertilizer companies by user id
      */
     public function companies(int $user_id)
     {
-        $companyTable = app(SeedingCompany::class)->getTable();
-        $seedTable = app(Seeds::class)->getTable();
+        $companyTable = app(FertilizerCompanies::class)->getTable();
+        $fertilizerTable = app(Fertilizer::class)->getTable();
 
-        $seedCompanies = DB::table($companyTable)
+        $companies = DB::table($companyTable)
             ->where($companyTable . '.user_id', $user_id)
-            ->join($seedTable, $seedTable . '.id', '=', $companyTable . '.seed_id')
-            ->select($companyTable . '.*', DB::raw($seedTable . '.name as seed_name'))
+            ->join($fertilizerTable, $fertilizerTable . '.id', '=', $companyTable . '.fertilizer_id')
+            ->select($companyTable . '.*', DB::raw($fertilizerTable . '.name as fertilizer_name'))
             ->orderBy($companyTable . '.company_name', 'ASC')
             ->get();
 
         return response()->json([
             "success" => true,
-            "data" => $seedCompanies->all()
+            "data" => $companies->all()
         ]);
     }
     /**
-     * get all seed companies by user id and seed id
+     * get all fertilizer companies by user id and fertilizer id
      */
-    public function companiesBySeed(int $user_id, int $seed_id)
+    public function companiesByFertilizer(int $user_id, int $fertilizer_id)
     {
-        $seedCompanies = SeedingCompany::where('user_id', $user_id)
-            ->where('seed_id', $seed_id)
+        $companies = FertilizerCompanies::where('user_id', $user_id)
+            ->where('fertilizer_id', $fertilizer_id)
             ->orderBy('company_name', 'ASC')
             ->get();
 
         return response()->json([
             "success" => true,
-            "data" => $seedCompanies->all()
+            "data" => $companies->all()
         ]);
     }
 
     /**
-     * add a new seeding company
+     * add a new fertilizer company
      */
     public function newCompany(Request $request)
     {
@@ -142,8 +142,8 @@ class SeedingController extends Controller
         if (!isset($data['company_name']) || $data['company_name'] == "") {
             $err[] = "Please enter Company Name.";
         }
-        if (!isset($data['seed_id']) || $data['seed_id'] == "") {
-            $err[] = "Please select a Seed.";
+        if (!isset($data['fertilizer_id']) || $data['fertilizer_id'] == "") {
+            $err[] = "Please select a Fertilizer.";
         }
 
         if (count($err) > 0) {
@@ -160,28 +160,28 @@ class SeedingController extends Controller
             ]);
         }
 
-        $checkCompanies = SeedingCompany::where('user_id', $data['user_id'])
+        $checkCompanies = FertilizerCompanies::where('user_id', $data['user_id'])
             ->where('company_name', $data['company_name'])
-            ->where('seed_id', $data['seed_id'])
+            ->where('fertilizer_id', $data['fertilizer_id'])
             ->get();
         if ($checkCompanies->count() > 0) {
-            $seed = Seeds::find($data['seed_id']);
+            $seed = Fertilizer::find($data['fertilizer_id']);
             return response()->json([
                 "success" => false,
                 "message" => "The company with seed $seed->name already exists."
             ]);
         }
 
-        $save = new SeedingCompany($data);
+        $save = new FertilizerCompanies($data);
         $save->save();
 
         // return inserted row
-        $companyTable = app(SeedingCompany::class)->getTable();
-        $seedTable = app(Seeds::class)->getTable();
+        $companyTable = app(FertilizerCompanies::class)->getTable();
+        $fertilizerTable = app(Fertilizer::class)->getTable();
         $company = DB::table($companyTable)
             ->where($companyTable . '.id', $save->id)
-            ->join($seedTable, $seedTable . '.id', '=', $companyTable . '.seed_id')
-            ->select($companyTable . '.*', DB::raw($seedTable . '.name as seed_name'))
+            ->join($fertilizerTable, $fertilizerTable . '.id', '=', $companyTable . '.fertilizer_id')
+            ->select($companyTable . '.*', DB::raw($fertilizerTable . '.name as fertilizer_name'))
             ->get();
         return response()->json([
             "success" => true,
@@ -191,7 +191,7 @@ class SeedingController extends Controller
     }
 
     /**
-     * update company name and seed that it provides
+     * update company name and fertilizer that it provides
      */
     public function updateCompany(Request $request)
     {
@@ -201,8 +201,8 @@ class SeedingController extends Controller
         if (!isset($data['company_name']) || $data['company_name'] == "") {
             $err[] = "Please enter Company Name.";
         }
-        if (!isset($data['seed_id']) || $data['seed_id'] == "") {
-            $err[] = "Please select a Seed.";
+        if (!isset($data['fertilizer_id']) || $data['fertilizer_id'] == "") {
+            $err[] = "Please select a Fertilizer.";
         }
 
         if (count($err) > 0) {
@@ -220,13 +220,13 @@ class SeedingController extends Controller
         }
 
         // check if another record other than this(the one that is getting updated) has the same value
-        $seedCompanies = SeedingCompany::where('user_id', $data['user_id'])
+        $seedCompanies = FertilizerCompanies::where('user_id', $data['user_id'])
             ->where('company_name', $data['company_name'])
-            ->where('seed_id', $data['seed_id'])
+            ->where('fertilizer_id', $data['fertilizer_id'])
             ->where('id', '!=', $data['id'])
             ->get();
         if ($seedCompanies->count() > 0) {
-            $seed = Seeds::find($data['seed_id']);
+            $seed = Fertilizer::find($data['fertilizer_id']);
             return response()->json([
                 "success" => false,
                 "message" => "The company with seed $seed->name already exists."
@@ -234,19 +234,19 @@ class SeedingController extends Controller
         }
 
         // update row
-        SeedingCompany::where('id', $data['id'])
+        FertilizerCompanies::where('id', $data['id'])
             ->update([
-                'seed_id' => $data['seed_id'],
+                'fertilizer_id' => $data['fertilizer_id'],
                 'company_name' => $data['company_name']
             ]);
 
         // return the updated row
-        $companyTable = app(SeedingCompany::class)->getTable();
-        $seedTable = app(Seeds::class)->getTable();
+        $companyTable = app(FertilizerCompanies::class)->getTable();
+        $seedTable = app(Fertilizer::class)->getTable();
         $company = DB::table($companyTable)
             ->where($companyTable . '.id', $data['id'])
-            ->join($seedTable, $seedTable . '.id', '=', $companyTable . '.seed_id')
-            ->select($companyTable . '.*', DB::raw($seedTable . '.name as seed_name'))
+            ->join($seedTable, $seedTable . '.id', '=', $companyTable . '.fertilizer_id')
+            ->select($companyTable . '.*', DB::raw($seedTable . '.name as fertilizer_name'))
             ->get();
 
         return response()->json([
@@ -276,7 +276,7 @@ class SeedingController extends Controller
             ]);
         }
 
-        (SeedingCompany::find($data['id']))->delete();
+        (FertilizerCompanies::find($data['id']))->delete();
 
         return response()->json([
             "success" => true,
