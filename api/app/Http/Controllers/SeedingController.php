@@ -256,4 +256,32 @@ class SeedingController extends Controller
             "data" => $seedCompany->first()
         ]);
     }
+    
+    /**
+     * delete company
+     */
+    public function deleteSeedCompanies(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (!isset($data['id']) || $data['id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+        if (!isset($data['user_id']) || $data['user_id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        (SeedingCompany::find($data['id']))->delete();
+
+        return response()->json([
+            "success" => true,
+            "message" => "The company was deleted succesfully.",
+        ]);
+    }
 }

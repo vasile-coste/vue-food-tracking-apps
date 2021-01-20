@@ -28,8 +28,11 @@ Route::post('/auth/login', [UserController::class, 'login']);
 Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
 Route::post('/farming/seeding/seed/add', [SeedingController::class, 'newSeed']);
 Route::post('/farming/seeding/seed/update', [SeedingController::class, 'updateSeed']);
+
 Route::get('/farming/seeding/companies/{user_id}', [SeedingController::class, 'seedCompanies']);
 Route::get('/farming/seeding/companies/{user_id}/{seed_id}', [SeedingController::class, 'seedCompaniesBySeed']);
 Route::post('/farming/seeding/companies/add', [SeedingController::class, 'newSeedCompanies']);
 Route::post('/farming/seeding/companies/update', [SeedingController::class, 'updateSeedCompanies']);
+Route::post('/farming/seeding/companies/delete', [SeedingController::class, 'deleteSeedCompanies']);
+
 

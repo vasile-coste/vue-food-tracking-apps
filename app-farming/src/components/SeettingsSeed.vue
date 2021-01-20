@@ -71,6 +71,7 @@
                   >
                     Edit
                   </button>
+                  <button type="button" class="btn btn-danger" @click="deleteSeedCompany(item.id, index)">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -377,6 +378,28 @@ export default {
               this.seedCompanies[this.index] = result.data;
             }
             $("#seedCompanyForm").modal("hide");
+            this.resetData();
+          } else {
+            this.showWarning(result.message);
+          }
+        });
+    },
+    deleteSeedCompany(id, index){
+      if(!confirm("Are you sure?")){
+        return;
+      }
+
+      let obj = {
+        id:id,
+        user_id:this.user.id
+      }
+      this.$axios
+        .post("farming/seeding/companies/delete" , obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.showSuccess(result.message);
+            this.seedCompanies.splice(index, 1);
             this.resetData();
           } else {
             this.showWarning(result.message);
