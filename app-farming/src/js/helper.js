@@ -57,9 +57,9 @@ let helper = {
 
             document.body.appendChild(elem);
         } else {
-            /** if number of active requests are bigger than 1 we will not remove the loading screen */
-            if(numOfLoadingScreens > 1){
-                numOfLoadingScreens--;
+            /** if number of active requests are bigger than 0 we will not remove the loading screen */
+            numOfLoadingScreens--;
+            if(numOfLoadingScreens > 0){
                 return;
             }
 
