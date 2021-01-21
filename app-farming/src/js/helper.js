@@ -15,8 +15,6 @@ let helper = {
             elem.innerHTML = `
             <style>
             .loading {
-                width: 100%;
-                height: 200px;
                 background-color: #00000020;
                 width: 100vw;
                 height: 100vh;
