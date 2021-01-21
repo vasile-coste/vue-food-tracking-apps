@@ -71,7 +71,13 @@
                   >
                     Edit
                   </button>
-                  <button type="button" class="btn btn-danger" @click="deleteFertilizerCompany(item.id, index)">Delete</button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    @click="deleteFertilizerCompany(item.id, index)"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -100,7 +106,9 @@
           <div class="modal-body">
             <div class="container-fluid">
               <div class="form-group">
-                <label for="fertilizerName" class="col-form-label">Fertilizer Name:</label>
+                <label for="fertilizerName" class="col-form-label"
+                  >Fertilizer Name:</label
+                >
                 <input
                   type="text"
                   class="form-control"
@@ -160,7 +168,9 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="fertilizerCompanyName" class="col-form-label">Company Name:</label>
+                <label for="fertilizerCompanyName" class="col-form-label"
+                  >Company Name:</label
+                >
                 <input
                   type="text"
                   class="form-control"
@@ -189,7 +199,11 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button type="button" class="btn btn-primary" @click="saveModalFertilizerCompany">
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveModalFertilizerCompany"
+            >
               Save
             </button>
           </div>
@@ -200,6 +214,7 @@
 </template>
 
 <script>
+import helper from "@/js/helper";
 import $ from "jquery";
 export default {
   name: "SeettingsFertilizing",
@@ -225,15 +240,22 @@ export default {
   },
   methods: {
     loadFertilizers() {
-      this.$axios.get("farming/fertilizing/fertilizer/" + this.user.id).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.fertilizers = result.data;
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get("farming/fertilizing/fertilizer/" + this.user.id)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.fertilizers = result.data;
+            this.resetData();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     openModalFertilizer(data, index) {
       if (data === false) {
@@ -261,7 +283,7 @@ export default {
       };
 
       if (!fertilizerObj.name || fertilizerObj.name.length == 0) {
-        this.showWarning("Please complete Fertilizer Name.");
+        helper.showWarning("Please complete Fertilizer Name.");
         return;
       }
 
@@ -270,39 +292,53 @@ export default {
         urlPart = "update";
         fertilizerObj.id = this.fertilizerForm.obj.id;
         if (fertilizerObj.name == this.fertilizerForm.obj.name) {
-          this.showSuccess("Nothing to update!");
+          helper.showSuccess("Nothing to update!");
           return;
         }
       }
 
-      this.$axios.post("farming/fertilizing/fertilizer/" + urlPart, fertilizerObj).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.showSuccess(result.message);
-          if (this.fertilizerForm.obj == null) {
-            /** add the new fertilizer to our obj */
-            this.fertilizers.push(result.data);
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("farming/fertilizing/fertilizer/" + urlPart, fertilizerObj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            if (this.fertilizerForm.obj == null) {
+              /** add the new fertilizer to our obj */
+              this.fertilizers.push(result.data);
+            } else {
+              /** update the fertilizer name from obj */
+              this.fertilizers[this.index].name = fertilizerObj.name;
+            }
+            $("#fertilizerForm").modal("hide");
+            this.resetData();
           } else {
-            /** update the fertilizer name from obj */
-            this.fertilizers[this.index].name = fertilizerObj.name;
+            helper.showWarning(result.message);
           }
-          $("#fertilizerForm").modal("hide");
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     loadFertilizerCompanies() {
-      this.$axios.get("farming/fertilizing/companies/" + this.user.id).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.fertilizerCompanies = result.data;
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get("farming/fertilizing/companies/" + this.user.id)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.fertilizerCompanies = result.data;
+            this.resetData();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     openModalFertilizerCompany(data, index) {
       if (data === false) {
@@ -338,13 +374,19 @@ export default {
 
       let err = false;
 
-      if (!fertilizerCompanyObj.fertilizer_id || fertilizerCompanyObj.fertilizer_id.length == 0) {
-        this.showWarning("Please select a fertilizer.");
+      if (
+        !fertilizerCompanyObj.fertilizer_id ||
+        fertilizerCompanyObj.fertilizer_id.length == 0
+      ) {
+        helper.showWarning("Please select a fertilizer.");
         err = true;
       }
 
-      if (!fertilizerCompanyObj.company_name || fertilizerCompanyObj.company_name.length == 0) {
-        this.showWarning("Please complete Company Name.");
+      if (
+        !fertilizerCompanyObj.company_name ||
+        fertilizerCompanyObj.company_name.length == 0
+      ) {
+        helper.showWarning("Please complete Company Name.");
         err = true;
       }
 
@@ -357,20 +399,23 @@ export default {
         urlPart = "update";
         fertilizerCompanyObj.id = this.fertilizerCompanyForm.obj.id;
         if (
-          fertilizerCompanyObj.company_name == this.fertilizerCompanyForm.obj.company_name &&
-          fertilizerCompanyObj.fertilizer_id == this.fertilizerCompanyForm.obj.fertilizer_id
+          fertilizerCompanyObj.company_name ==
+            this.fertilizerCompanyForm.obj.company_name &&
+          fertilizerCompanyObj.fertilizer_id ==
+            this.fertilizerCompanyForm.obj.fertilizer_id
         ) {
-          this.showSuccess("Nothing to update!");
+          helper.showSuccess("Nothing to update!");
           return;
         }
       }
 
+      helper.toggleLoadingScreen(true);
       this.$axios
         .post("farming/fertilizing/companies/" + urlPart, fertilizerCompanyObj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
             if (this.fertilizerCompanyForm.obj == null) {
               /** add the new fertilizer to our obj */
               this.fertilizerCompanies.push(result.data);
@@ -381,30 +426,39 @@ export default {
             $("#fertilizerCompanyForm").modal("hide");
             this.resetData();
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
         });
     },
-    deleteFertilizerCompany(id, index){
-      if(!confirm("Are you sure?")){
+    deleteFertilizerCompany(id, index) {
+      if (!confirm("Are you sure?")) {
         return;
       }
 
       let obj = {
-        id:id,
-        user_id:this.user.id
-      }
+        id: id,
+        user_id: this.user.id,
+      };
+      helper.toggleLoadingScreen(true);
       this.$axios
-        .post("farming/fertilizing/companies/delete" , obj)
+        .post("farming/fertilizing/companies/delete", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
             this.fertilizerCompanies.splice(index, 1);
             this.resetData();
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
         });
     },
     resetData() {
@@ -419,14 +473,6 @@ export default {
         company_name: null,
         obj: null,
       };
-    },
-    showWarning(msg) {
-      /** send data to parrent component */
-      this.$emit("showWarning", msg);
-    },
-    showSuccess(msg) {
-      /** send data to parrent component */
-      this.$emit("showSuccess", msg);
     },
   },
   mounted() {

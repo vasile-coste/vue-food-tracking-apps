@@ -135,7 +135,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import helper from "@/js/helper";
 export default {
   data() {
     return {
@@ -161,7 +161,7 @@ export default {
   methods: {
     loginAction() {
       if (!this.login.email || !this.login.password) {
-        this.showWarning("Please fill in the email and password.");
+        helper.showWarning("Please fill in the email and password.");
         return;
       } else {
         this.$axios
@@ -171,11 +171,11 @@ export default {
             if (result.success) {
               this.$session.start();
               this.$session.set("user", result.data);
-              this.showSuccess(result.message);
+              helper.showSuccess(result.message);
               this.redirect();
             } else {
               this.message.warning = result.message;
-              this.showWarning(result.message);
+              helper.showWarning(result.message);
             }
           })
           .catch(function (error) {
@@ -228,7 +228,7 @@ export default {
           errMsg += passwordMatch;
         }
 
-        this.showWarning(errMsg);
+        helper.showWarning(errMsg);
 
         return;
       } else {
@@ -238,9 +238,9 @@ export default {
             this.login.email = this.register.email;
             this.login.password = this.register.password1;
             this.signUp = false;
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
         });
       }
@@ -250,20 +250,6 @@ export default {
     },
     redirect() {
       this.$router.push({ name: "Home" });
-    },
-    showWarning(msg) {
-      this.$notify({
-        group: "app",
-        text: msg,
-        type: "error",
-      });
-    },
-    showSuccess(msg) {
-      this.$notify({
-        group: "app",
-        text: msg,
-        type: "success",
-      });
     },
   },
 };

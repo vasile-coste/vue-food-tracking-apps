@@ -71,7 +71,13 @@
                   >
                     Edit
                   </button>
-                  <button type="button" class="btn btn-danger" @click="deleteSeedCompany(item.id, index)">Delete</button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    @click="deleteSeedCompany(item.id, index)"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -200,6 +206,7 @@
 </template>
 
 <script>
+import helper from "@/js/helper";
 import $ from "jquery";
 export default {
   name: "SeettingsSeed",
@@ -225,15 +232,22 @@ export default {
   },
   methods: {
     loadSeeds() {
-      this.$axios.get("farming/seeding/seed/" + this.user.id).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.seeds = result.data;
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get("farming/seeding/seed/" + this.user.id)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.seeds = result.data;
+            this.resetData();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     openModalSeed(data, index) {
       if (data === false) {
@@ -261,7 +275,7 @@ export default {
       };
 
       if (!seedObj.name || seedObj.name.length == 0) {
-        this.showWarning("Please complete Seed Name.");
+        helper.showWarning("Please complete Seed Name.");
         return;
       }
 
@@ -270,39 +284,53 @@ export default {
         urlPart = "update";
         seedObj.id = this.seedForm.obj.id;
         if (seedObj.name == this.seedForm.obj.name) {
-          this.showSuccess("Nothing to update!");
+          helper.showSuccess("Nothing to update!");
           return;
         }
       }
 
-      this.$axios.post("farming/seeding/seed/" + urlPart, seedObj).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.showSuccess(result.message);
-          if (this.seedForm.obj == null) {
-            /** add the new seed to our obj */
-            this.seeds.push(result.data);
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("farming/seeding/seed/" + urlPart, seedObj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            if (this.seedForm.obj == null) {
+              /** add the new seed to our obj */
+              this.seeds.push(result.data);
+            } else {
+              /** update the seed name from obj */
+              this.seeds[this.index].name = seedObj.name;
+            }
+            $("#seedForm").modal("hide");
+            this.resetData();
           } else {
-            /** update the seed name from obj */
-            this.seeds[this.index].name = seedObj.name;
+            helper.showWarning(result.message);
           }
-          $("#seedForm").modal("hide");
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     loadSeedCompanies() {
-      this.$axios.get("farming/seeding/companies/" + this.user.id).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.seedCompanies = result.data;
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get("farming/seeding/companies/" + this.user.id)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.seedCompanies = result.data;
+            this.resetData();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     openModalSeedCompany(data, index) {
       if (data === false) {
@@ -339,12 +367,12 @@ export default {
       let err = false;
 
       if (!seedCompanyObj.seed_id || seedCompanyObj.seed_id.length == 0) {
-        this.showWarning("Please select a Seed.");
+        helper.showWarning("Please select a Seed.");
         err = true;
       }
 
       if (!seedCompanyObj.company_name || seedCompanyObj.company_name.length == 0) {
-        this.showWarning("Please complete Company Name.");
+        helper.showWarning("Please complete Company Name.");
         err = true;
       }
 
@@ -360,17 +388,18 @@ export default {
           seedCompanyObj.company_name == this.seedCompanyForm.obj.company_name &&
           seedCompanyObj.seed_id == this.seedCompanyForm.obj.seed_id
         ) {
-          this.showSuccess("Nothing to update!");
+          helper.showSuccess("Nothing to update!");
           return;
         }
       }
 
+      helper.toggleLoadingScreen(true);
       this.$axios
         .post("farming/seeding/companies/" + urlPart, seedCompanyObj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
             if (this.seedCompanyForm.obj == null) {
               /** add the new seed to our obj */
               this.seedCompanies.push(result.data);
@@ -381,30 +410,39 @@ export default {
             $("#seedCompanyForm").modal("hide");
             this.resetData();
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
         });
     },
-    deleteSeedCompany(id, index){
-      if(!confirm("Are you sure?")){
+    deleteSeedCompany(id, index) {
+      if (!confirm("Are you sure?")) {
         return;
       }
 
       let obj = {
-        id:id,
-        user_id:this.user.id
-      }
+        id: id,
+        user_id: this.user.id,
+      };
+      helper.toggleLoadingScreen(true);
       this.$axios
-        .post("farming/seeding/companies/delete" , obj)
+        .post("farming/seeding/companies/delete", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
             this.seedCompanies.splice(index, 1);
             this.resetData();
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
         });
     },
     resetData() {
@@ -419,14 +457,6 @@ export default {
         company_name: null,
         obj: null,
       };
-    },
-    showWarning(msg) {
-      /** send data to parrent component */
-      this.$emit("showWarning", msg);
-    },
-    showSuccess(msg) {
-      /** send data to parrent component */
-      this.$emit("showSuccess", msg);
     },
   },
   mounted() {

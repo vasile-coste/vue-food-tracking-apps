@@ -34,12 +34,6 @@
     <!-- Content -->
     <div class="container">
       <div class="row">
-        <div class="col-md-8 col-sm-12" :class="{ 'd-none': actionName != 'loading' }">
-          <div class="loading">
-            <div class="loading-element"></div>
-          </div>
-        </div>
-        
         <div
           class="col-md-8 col-sm-12"
           :class="{ 'd-none': actionName != 'seeding' || actionStarted }"

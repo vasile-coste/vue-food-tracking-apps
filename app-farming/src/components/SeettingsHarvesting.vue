@@ -33,13 +33,18 @@
                   >
                     Edit
                   </button>
-                  <button type="button" class="btn btn-danger" @click="deleteHarvestingCompany(item.id, index)">Delete</button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    @click="deleteHarvestingCompany(item.id, index)"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
 
@@ -77,18 +82,22 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button type="button" class="btn btn-primary" @click="saveModalHarvestingCompany">
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveModalHarvestingCompany"
+            >
               Save
             </button>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
+import helper from "@/js/helper";
 import $ from "jquery";
 export default {
   name: "SeettingsHarvesting",
@@ -107,15 +116,22 @@ export default {
   },
   methods: {
     loadHarvestingCompanies() {
-      this.$axios.get("farming/harvesting/companies/" + this.user.id).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.harvestingCompanies = result.data;
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get("farming/harvesting/companies/" + this.user.id)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.harvestingCompanies = result.data;
+            this.resetData();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     openModalHarvestingCompany(data, index) {
       if (data === false) {
@@ -143,7 +159,7 @@ export default {
       };
 
       if (!harvestingObj.company_name || harvestingObj.company_name.length == 0) {
-        this.showWarning("Please complete Company Name.");
+        helper.showWarning("Please complete Company Name.");
         return;
       }
 
@@ -152,50 +168,63 @@ export default {
         urlPart = "update";
         harvestingObj.id = this.harvestingCompanyForm.obj.id;
         if (harvestingObj.company_name == this.harvestingCompanyForm.obj.company_name) {
-          this.showSuccess("Nothing to update!");
+          helper.showSuccess("Nothing to update!");
           return;
         }
       }
 
-      this.$axios.post("farming/harvesting/companies/" + urlPart, harvestingObj).then((res) => {
-        let result = JSON.parse(res.request.response);
-        if (result.success) {
-          this.showSuccess(result.message);
-          if (this.harvestingCompanyForm.obj == null) {
-            /** add the new seed to our obj */
-            this.harvestingCompanies.push(result.data);
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("farming/harvesting/companies/" + urlPart, harvestingObj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            if (this.harvestingCompanyForm.obj == null) {
+              /** add the new seed to our obj */
+              this.harvestingCompanies.push(result.data);
+            } else {
+              /** update the seed name from obj */
+              this.harvestingCompanies[this.index].company_name =
+                harvestingObj.company_name;
+            }
+            $("#harvestingCompanyForm").modal("hide");
+            this.resetData();
           } else {
-            /** update the seed name from obj */
-            this.harvestingCompanies[this.index].company_name = harvestingObj.company_name;
+            helper.showWarning(result.message);
           }
-          $("#harvestingCompanyForm").modal("hide");
-          this.resetData();
-        } else {
-          this.showWarning(result.message);
-        }
-      });
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
-    
-    deleteHarvestingCompany(id, index){
-      if(!confirm("Are you sure?")){
+
+    deleteHarvestingCompany(id, index) {
+      if (!confirm("Are you sure?")) {
         return;
       }
 
       let obj = {
-        id:id,
-        user_id:this.user.id
-      }
+        id: id,
+        user_id: this.user.id,
+      };
+      helper.toggleLoadingScreen(true);
       this.$axios
-        .post("farming/harvesting/companies/delete" , obj)
+        .post("farming/harvesting/companies/delete", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.showSuccess(result.message);
+            helper.showSuccess(result.message);
             this.harvestingCompanies.splice(index, 1);
             this.resetData();
           } else {
-            this.showWarning(result.message);
+            helper.showWarning(result.message);
           }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
         });
     },
     resetData() {
@@ -204,14 +233,6 @@ export default {
         company_name: null,
         obj: null,
       };
-    },
-    showWarning(msg) {
-      /** send data to parrent component */
-      this.$emit("showWarning", msg);
-    },
-    showSuccess(msg) {
-      /** send data to parrent component */
-      this.$emit("showSuccess", msg);
     },
   },
   mounted() {

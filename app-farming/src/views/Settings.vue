@@ -35,29 +35,20 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12 col-sm-12" :class="{ 'd-none': actionName != 'seeding' }">
-          <SeettingsSeed
-            @showWarning="showWarning($event)"
-            @showSuccess="showSuccess($event)"
-          />
+          <SeettingsSeed />
         </div>
 
         <div
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'fertilizing' }"
         >
-          <SeettingsFertilizing
-            @showWarning="showWarning($event)"
-            @showSuccess="showSuccess($event)"
-          />
+          <SeettingsFertilizing />
         </div>
         <div
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'harvesting' }"
         >
-          <SeettingsHarvesting
-            @showWarning="showWarning($event)"
-            @showSuccess="showSuccess($event)"
-          />
+          <SeettingsHarvesting />
         </div>
 
         <!-- /row div -->
@@ -91,20 +82,6 @@ export default {
   methods: {
     changeAction(action) {
       this.actionName = action;
-    },
-    showWarning(msg) {
-      this.$notify({
-        group: "app",
-        text: msg,
-        type: "error",
-      });
-    },
-    showSuccess(msg) {
-      this.$notify({
-        group: "app",
-        text: msg,
-        type: "success",
-      });
     },
   },
   mounted() {},
