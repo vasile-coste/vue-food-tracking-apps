@@ -178,11 +178,11 @@
                 />
                 <datalist id="SeedCompanies">
                   <option
-                    v-for="(item, index) in seedCompanies"
+                    v-for="(company_name, index) in dalaListCompanies()"
                     :key="index"
-                    v-bind:value="item.company_name"
+                    v-bind:value="company_name"
                   >
-                    {{ item.company_name }}
+                    {{ company_name }}
                   </option>
                 </datalist>
                 <small id="companyHelpBlock" class="form-text text-muted">
@@ -444,6 +444,16 @@ export default {
         .catch(() => {
           helper.toggleLoadingScreen(false);
         });
+    },
+    dalaListCompanies() {
+      let companies = [];
+      this.seedCompanies.forEach((e) => {
+        if (!companies.includes(e.company_name)) {
+          companies.push(e.company_name);
+        }
+      });
+
+      return companies;
     },
     resetData() {
       this.seedForm = {
