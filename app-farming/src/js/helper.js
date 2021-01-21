@@ -1,13 +1,21 @@
 import Vue from "vue";
 
+/** default number of loading screens */
+let numOfLoadingScreens = 0;
+
 let helper = {
     toggleLoadingScreen(showOrHide) {
         if (showOrHide) {
+            /** increment number of loading screens request */
+            numOfLoadingScreens++;
+
+            /** check to see if there is any loading screens active */
             let isLoadingActive = document.getElementsByClassName('loading');
             if (isLoadingActive.length > 0) {
                 return;
             }
 
+            /** add loading screen */
             let elem = document.createElement('div');
             elem.className = 'loading';
             elem.id = 'loading';
@@ -49,6 +57,13 @@ let helper = {
 
             document.body.appendChild(elem);
         } else {
+            /** if number of active requests are bigger than 1 we will not remove the loading screen */
+            if(numOfLoadingScreens > 1){
+                numOfLoadingScreens--;
+                return;
+            }
+
+            /** check if there's any loading screens */
             let isLoadingActive = document.getElementsByClassName('loading');
             if (isLoadingActive.length == 0) {
                 return;
