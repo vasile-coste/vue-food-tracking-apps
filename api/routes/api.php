@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SeedingController;
 use App\Http\Controllers\FertilizingController;
+use App\Http\Controllers\HarvestingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Route::group(['prefix' => 'farming'], function () {
         });
     });
 
-    /** Frertilizing */
+    /** Fertilizing */
     Route::group(['prefix' => 'fertilizing'], function () {
         Route::group(['prefix' => 'fertilizer'], function () {
             Route::get('{user_id}', [FertilizingController::class, 'fertilizers']);
@@ -63,4 +64,13 @@ Route::group(['prefix' => 'farming'], function () {
         });
     });
 
+    /** Harvesting companies */
+    Route::group(['prefix' => 'harvesting'], function () {
+        Route::group(['prefix' => 'companies'], function () {
+            Route::get('{user_id}', [HarvestingController::class, 'companies']);
+            Route::post('add', [HarvestingController::class, 'newCompany']);
+            Route::post('update', [HarvestingController::class, 'updateCompany']);
+            Route::post('delete', [HarvestingController::class, 'deleteCompany']);
+        });
+    });
 });

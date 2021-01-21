@@ -54,7 +54,10 @@
           class="col-md-12 col-sm-12"
           :class="{ 'd-none': actionName != 'harvesting' }"
         >
-          <h2 class="actionHeader">Harvesting Settings</h2>
+          <SeettingsHarvesting
+            @showWarning="showWarning($event)"
+            @showSuccess="showSuccess($event)"
+          />
         </div>
 
         <!-- /row div -->
@@ -71,12 +74,14 @@
 import NavBar from "@/components/NavBar.vue";
 import SeettingsSeed from "@/components/SeettingsSeed.vue";
 import SeettingsFertilizing from "@/components/SeettingsFertilizing.vue";
+import SeettingsHarvesting from "@/components/SeettingsHarvesting.vue";
 export default {
   name: "Settings",
   components: {
     NavBar,
     SeettingsSeed,
     SeettingsFertilizing,
+    SeettingsHarvesting,
   },
   data() {
     return {

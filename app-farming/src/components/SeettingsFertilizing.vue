@@ -160,11 +160,11 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="companyName" class="col-form-label">Company Name:</label>
+                <label for="fertilizerCompanyName" class="col-form-label">Company Name:</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="companyName"
+                  id="fertilizerCompanyName"
                   list="FertilizerCompanies"
                   aria-describedby="companyHelpBlock"
                   autocomplete="off"
