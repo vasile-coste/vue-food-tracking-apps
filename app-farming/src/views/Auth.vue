@@ -164,6 +164,7 @@ export default {
         helper.showWarning("Please fill in the email and password.");
         return;
       } else {
+        helper.toggleLoadingScreen(true);
         this.$axios
           .post("auth/login", this.login)
           .then((res) => {
@@ -177,9 +178,10 @@ export default {
               this.message.warning = result.message;
               helper.showWarning(result.message);
             }
+            helper.toggleLoadingScreen(false);
           })
-          .catch(function (error) {
-            console.log(error);
+          .catch(() => {
+            helper.toggleLoadingScreen(false);
           });
       }
     },
@@ -232,17 +234,24 @@ export default {
 
         return;
       } else {
-        this.$axios.post("auth/register", this.register).then((res) => {
-          let result = JSON.parse(res.request.response);
-          if (result.success) {
-            this.login.email = this.register.email;
-            this.login.password = this.register.password1;
-            this.signUp = false;
-            helper.showSuccess(result.message);
-          } else {
-            helper.showWarning(result.message);
-          }
-        });
+        helper.toggleLoadingScreen(true);
+        this.$axios
+          .post("auth/register", this.register)
+          .then((res) => {
+            let result = JSON.parse(res.request.response);
+            if (result.success) {
+              this.login.email = this.register.email;
+              this.login.password = this.register.password1;
+              this.signUp = false;
+              helper.showSuccess(result.message);
+            } else {
+              helper.showWarning(result.message);
+            }
+            helper.toggleLoadingScreen(false);
+          })
+          .catch(() => {
+            helper.toggleLoadingScreen(false);
+          });
       }
     },
     toggleForms() {
