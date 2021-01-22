@@ -14,6 +14,13 @@ class SeedingController extends Controller
      */
     public function seeds(int $user_id)
     {
+        if (!isset($user_id) || $user_id == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
         $seeds = Seeds::where('user_id', $user_id)->orderBy('name', 'ASC')->get();
 
         return response()->json([
@@ -100,6 +107,13 @@ class SeedingController extends Controller
      */
     public function companies(int $user_id)
     {
+        if (!isset($user_id) || $user_id == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+        
         $companyTable = app(SeedingCompany::class)->getTable();
         $seedTable = app(Seeds::class)->getTable();
 

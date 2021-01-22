@@ -13,6 +13,13 @@ class HarvestingController extends Controller
      */
     public function companies(int $user_id)
     {
+        if (!isset($user_id) || $user_id == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+        
         $fertilizers = HarvestingCompanies::where('user_id', $user_id)->orderBy('company_name', 'ASC')->get();
 
         return response()->json([

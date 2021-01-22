@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SeedingController;
 use App\Http\Controllers\FertilizingController;
 use App\Http\Controllers\HarvestingController;
+use App\Http\Controllers\FieldController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,5 +73,12 @@ Route::group(['prefix' => 'farming'], function () {
             Route::post('update', [HarvestingController::class, 'updateCompany']);
             Route::post('delete', [HarvestingController::class, 'deleteCompany']);
         });
+    });
+
+    /** Batch - aka field name / task */
+    Route::group(['prefix' => 'field'], function () {
+        Route::post('/all', [FieldController::class, 'allFields']);
+        Route::post('/add', [FieldController::class, 'addField']);
+        Route::post('/update', [FieldController::class, 'updateField']);
     });
 });
