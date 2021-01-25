@@ -84,6 +84,51 @@ let helper = {
             text: msg,
             type: "success",
         });
+    },
+    getLocation() {
+        if (!("geolocation" in navigator)) {
+            this.showWarning("Geolocation is not available.");
+            return;
+        }
+        let options = {
+            enableHighAccuracy: true,
+            /** timeout: 30 * 1000,*/
+            /** maximumAge: 500 */
+        }
+        return new Promise(function (resolve) {
+            /** navigator.geolocation.getCurrentPosition  watchPosition*/
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    let location = {
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude
+                    }
+                    resolve(location);
+                },
+                (err) => {
+                    helper.locationError(err);
+                },
+                options
+            );
+        });
+    },
+    locationError(error) {
+        let msg = "";
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                msg = "User denied the request for Geolocation.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                msg = "Location information is unavailable.";
+                break;
+            case error.TIMEOUT:
+                msg = "The request to get user location timed out.";
+                break;
+            case error.UNKNOWN_ERROR:
+                msg = "An unknown error occurred.";
+                break;
+        }
+        helper.showWarning(msg);
     }
 };
 

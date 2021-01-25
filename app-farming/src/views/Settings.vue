@@ -29,6 +29,14 @@
           <div class="submenuBtn-img harvesting"></div>
           <div class="submenuBtn-text">Harvesting</div>
         </div>
+        <div
+          class="submenuBtn"
+          @click="changeAction('settings')"
+          :class="{ active: actionName == 'settings' }"
+        >
+          <div class="submenuBtn-img settings"></div>
+          <div class="submenuBtn-text">Map Settings</div>
+        </div>
       </div>
     </div>
 
@@ -50,6 +58,12 @@
         >
           <SeettingsHarvesting />
         </div>
+        <div
+          class="col-md-12 col-sm-12"
+          :class="{ 'd-none': actionName != 'settings' }"
+        >
+          <SeettingsMap />
+        </div>
 
         <!-- /row div -->
       </div>
@@ -66,6 +80,7 @@ import NavBar from "@/components/NavBar.vue";
 import SeettingsSeed from "@/components/SeettingsSeed.vue";
 import SeettingsFertilizing from "@/components/SeettingsFertilizing.vue";
 import SeettingsHarvesting from "@/components/SeettingsHarvesting.vue";
+import SeettingsMap from "@/components/SeettingsMap.vue";
 export default {
   name: "Settings",
   components: {
@@ -73,6 +88,7 @@ export default {
     SeettingsSeed,
     SeettingsFertilizing,
     SeettingsHarvesting,
+    SeettingsMap,
   },
   data() {
     return {

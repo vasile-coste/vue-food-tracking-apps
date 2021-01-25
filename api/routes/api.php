@@ -7,6 +7,7 @@ use App\Http\Controllers\SeedingController;
 use App\Http\Controllers\FertilizingController;
 use App\Http\Controllers\HarvestingController;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\MapSettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,10 @@ Route::post('/auth/login', [UserController::class, 'login']);
 // Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
 /** Farming */
 Route::group(['prefix' => 'farming'], function () {
+    Route::group(['prefix' => 'map'], function () {
+        Route::get('{user_id}', [MapSettingsController::class, 'map']);
+        Route::post('update', [MapSettingsController::class, 'update']);
+    });
 
     /** Seeding */
     Route::group(['prefix' => 'seeding'], function () {

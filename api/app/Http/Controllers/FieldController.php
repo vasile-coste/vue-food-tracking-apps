@@ -33,7 +33,7 @@ class FieldController extends Controller
             ]);
         }
 
-        $fields = Field::where('user_id', $data['user_id'])->where($data['column'], $data['status'])->orderBy('field_name', 'ASC')->get();
+        $fields = Field::where('user_id', $data['user_id'])->where($data['column'], '!=', $data['status'])->orderBy('field_name', 'ASC')->get();
 
         return response()->json([
             "success" => true,
@@ -103,6 +103,7 @@ class FieldController extends Controller
 
     /**
      * update field
+     * TODO: add functionality
      */
     public function updateField(Request $request)
     {

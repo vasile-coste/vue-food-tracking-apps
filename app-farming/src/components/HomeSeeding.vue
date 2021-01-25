@@ -87,6 +87,7 @@ export default {
     return {
       actionName: "Seeding",
       fieldStatus: "in_progress",
+      getNotfieldStatus: "completed",
       user: this.$session.get("user"),
       actionData: {},
       chooseField: true,
@@ -230,7 +231,7 @@ export default {
       let fieldObj = {
         user_id: this.user.id,
         column: "seeding_status",
-        status: this.fieldStatus,
+        status: this.getNotfieldStatus,
       };
       helper.toggleLoadingScreen(true);
       this.$axios

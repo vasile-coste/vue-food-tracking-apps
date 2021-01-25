@@ -72,7 +72,6 @@
 
 <script>
 // @ is an alias to /src
-import helper from "@/js/helper";
 import NavBar from "@/components/NavBar.vue";
 import Map from "@/components/Map.vue";
 import HomeSeeding from "@/components/HomeSeeding.vue";
@@ -90,7 +89,6 @@ export default {
       actionName: null,
       mapData: [],
       fieldData: {},
-      location: {},
     };
   },
   methods: {
@@ -117,43 +115,10 @@ export default {
       this.mapData = actionData.mapData;
       this.fieldData = actionData.fieldData;
     },
-    getLocation() {
-      if (!("geolocation" in navigator)) {
-        helper.showWarning("Geolocation is not available.");
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          this.location = pos.coords;
-        },
-        (err) => {
-          this.locationError(err);
-        }
-      );
-    },
-    locationError(error) {
-      let msg = "";
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          msg = "User denied the request for Geolocation.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          msg = "Location information is unavailable.";
-          break;
-        case error.TIMEOUT:
-          msg = "The request to get user location timed out.";
-          break;
-        case error.UNKNOWN_ERROR:
-          msg = "An unknown error occurred.";
-          break;
-      }
-      helper.showWarning(msg);
-    },
   },
   mounted() {
     /** Default farmers action on entering the page */
     this.changeAction(this.defaultAction);
-    this.getLocation();
   },
 };
 </script>

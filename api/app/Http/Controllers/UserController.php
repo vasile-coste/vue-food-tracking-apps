@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\MapSettings;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,11 @@ class UserController extends Controller
                 "message" => "Credentials are not valid."
             ]);
         }
+
+        // get map settings
+        $map = MapSettings::where('user_id', $user['id'])->get();
+
+        $user['map_settings'] = $map->first();
 
         // remove password from response
         unset($user['password']);
@@ -118,6 +124,13 @@ class UserController extends Controller
 
         $addUser = new User($data);
         $addUser->save();
+
+        // save map settings
+        (new MapSettings([
+            'user_id' => $addUser->id,
+            'show_joystick' => false,
+            'precision' => 3
+        ]))->save();
 
         return response()->json([
             "success" => true,

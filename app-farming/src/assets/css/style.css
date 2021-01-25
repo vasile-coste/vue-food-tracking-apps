@@ -135,6 +135,10 @@
     background-image: url("../images/dashboard/fertilizing_yellow.png");
 }
 
+.submenuBtn:hover .settings, .submenuBtn.active .settings {
+    background-image: url("../images/dashboard/settings_yellow.png");
+}
+
 .seeding {
     background-image: url("../images/dashboard/seeding_white.png");
 }
@@ -146,6 +150,10 @@
 
 .fertilizing {
     background-image: url("../images/dashboard/fertilizing_white.png");
+}
+
+.settings {
+    background-image: url("../images/dashboard/settings_white.png");
 }
 
 /** Page home actions*/
@@ -244,4 +252,46 @@
     display: inherit;
 }
 
-/** Home */
+/** Map */
+
+.mapContainer {
+    width: 100%;
+    min-height: 70vh;
+}
+
+.map-bullet {
+    left: 4px !important;
+    top: 4px !important;
+    width: 7px !important;
+    height: 7px !important;
+}
+
+.map-bullet-circle {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: red;
+}
+
+.map-bullet-tractor {
+    height: 40px !important;
+    width: 40px !important;
+    left: -15px !important;
+    top: -20px !important;
+    z-index: 550 !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("../images/tractor-icon.png");
+}
+
+.map-bullet-seed, .legend-bullet-seed {
+    background-color: #ff5809;
+}
+
+.map-bullet-fertilized, .legend-bullet-fertilized {
+    background-color: #dd00dd;
+}
+
+.map-bullet-harvest, .legend-bullet-harvest {
+    background-color: #aa5500;
+}

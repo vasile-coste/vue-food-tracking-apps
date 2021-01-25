@@ -32,5 +32,6 @@
 - `npm i vue-notification` notification system
 - `npm i bootstrap` add boostrap to project
 - `npm i jquery`
+- `npm i leaflet`
 - `npm i popper.js`
 - tut -> https://bitbucket.org/blog/creating-a-vue-js-application
