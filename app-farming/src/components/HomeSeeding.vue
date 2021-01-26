@@ -87,27 +87,17 @@ export default {
   name: "HomeSeeding",
   props: {
     actionName: String,
+    fields: Array,
   },
   data() {
     return {
       fieldStatus: "in_progress",
-      getNotfieldStatus: "completed",
       user: this.$session.get("user"),
       chooseField: true,
       newField: null,
       selectField: {},
       selectSeed: {},
       selectCompany: {},
-      fields: [
-        {
-          id: "",
-          field_name: "",
-        },
-        {
-          id: "new",
-          field_name: "New Field",
-        },
-      ],
       seeds: [],
       companies: [],
     };
@@ -229,21 +219,19 @@ export default {
         prevGPS: [],
       };
 
-      this.$emit("startAction", actionData);
-    },
-    getfields() {
-      let fieldObj = {
-        user_id: this.user.id,
-        column: "seeding_status",
-        status: this.getNotfieldStatus,
-      };
+      let obj = {
+        field_id:this.selectField.obj.id,
+        action_name:this.actionName
+      }
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("farming/field/all", fieldObj)
+        .post('farming/field/location/all', obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.fields = this.fields.concat(result.data);
+            actionData.prevGPS = result.data;
+            this.$emit("startAction", actionData);
           } else {
             helper.showWarning(result.message);
           }
@@ -290,7 +278,6 @@ export default {
     },
   },
   mounted() {
-    this.getfields();
     this.getSeeds();
   },
 };

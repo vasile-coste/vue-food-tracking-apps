@@ -10,6 +10,7 @@ export default {
   name: "HomeHarvesting",
   props: {
     actionName: String,
+    fields: Array,
   },
   data() {
     return {

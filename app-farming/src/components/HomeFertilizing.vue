@@ -10,6 +10,7 @@ export default {
   name: "HomeFertilizing",
   props: {
     actionName: String,
+    fields: Array,
   },
   data() {
     return {

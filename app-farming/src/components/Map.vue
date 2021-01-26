@@ -162,33 +162,67 @@ export default {
       }
     },
     saveAction(completed) {
-      if (completed) {
-        /** complete action */
-      }
       console.log("mapData", this.fieldData, this.locations);
+      let obj = {
+        field_id: this.fieldData.id,
+        action_name: this.actionName,
+        location: this.locations,
+        completed: completed
+      };
 
-      this.$emit("stopAction", false);
-      $("#confirmStop").modal("hide");
+      console.log("save locations", obj);
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("farming/field/location/add", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            this.$emit("stopAction", false);
+            $("#confirmStop").modal("hide");
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     manualMoveUp() {
       this.location.latitude += this.manualMoveDistanceLat;
-      this.addMarker(this.location);
+      let newPos = {
+        latitude: this.location.latitude,
+        longitude: this.location.longitude
+      };
+      this.addMarker(newPos);
     },
     manualMoveDown() {
       this.location.latitude -= this.manualMoveDistanceLat;
-      this.addMarker(this.location);
+      let newPos = {
+        latitude: this.location.latitude,
+        longitude: this.location.longitude
+      };
+      this.addMarker(newPos);
     },
     manualMoveLeft() {
       this.location.longitude -= this.manualMoveDistanceLong;
-      this.addMarker(this.location);
+      let newPos = {
+        latitude: this.location.latitude,
+        longitude: this.location.longitude
+      };
+      this.addMarker(newPos);
     },
     manualMoveRight() {
       this.location.longitude += this.manualMoveDistanceLong;
-      this.addMarker(this.location);
+      let newPos = {
+        latitude: this.location.latitude,
+        longitude: this.location.longitude
+      };
+      this.addMarker(newPos);
     },
     initMap() {
-      console.log("init map");
-
       this.map = L.map("mapContainer");
 
       /** add title layer - will not work without it */
@@ -200,12 +234,11 @@ export default {
     },
     addMarker(currentMarker) {
       this.locations.push(currentMarker);
-      console.log("add marker", currentMarker);
+      console.log("add marker",currentMarker, this.locations)
 
       /** replace old marker with a new one */
       if (this.addedMarkers.length > 0) {
         let oldMarker = this.addedMarkers.pop();
-        console.log("remove oldMarker (tractor) to add it as red cicle", oldMarker);
         /** remove marker on demand */
         this.map.removeLayer(oldMarker);
 
@@ -223,7 +256,6 @@ export default {
       /** set current marker as old marker to replace it next time a marker gets added */
       this.oldCurrentMarker = currentMarker;
 
-      console.log("add marker tractor", currentMarker);
       /** add current marker */
       let tmpMarker = L.marker([currentMarker.latitude, currentMarker.longitude], {
         icon: L.divIcon({
@@ -238,7 +270,6 @@ export default {
     },
     addPreviousMarkers(markers) {
       let self = this;
-      console.log("add prev markers");
       /** create a variable to store the markers and to draw a line between them */
       markers.forEach((marker) => {
         /** prepare marker for map */
@@ -248,20 +279,18 @@ export default {
           }),
         }).addTo(this.markerGroup);
 
-        this.previousMarkers.push(tmpMarker);
+        self.previousMarkers.push(tmpMarker);
       });
     },
     clearMap() {
       let self = this;
       if (this.addedMarkers.length > 0) {
-        console.log("clear map - addedMarkers", this.addedMarkers);
         self.addedMarkers.forEach(function (marker) {
           self.map.removeLayer(marker);
         });
       }
 
       if (this.previousMarkers.length > 0) {
-        console.log("clear map - previousMarkers");
         self.previousMarkers.forEach(function (marker) {
           self.map.removeLayer(marker);
         });
@@ -270,7 +299,6 @@ export default {
     redrawMap() {
       let self = this;
       setTimeout(function () {
-        console.log("reload map");
         self.map.invalidateSize(true);
       }, 1000);
     },
@@ -280,10 +308,7 @@ export default {
       setTimeout(() => {
         if (self.actionStarted) {
           helper.getLocation().then((pos) => {
-            self.location = pos;
-            console.log("getting new position... every 1 second");
-            console.log("current pos:", self.location);
-            self.addMarker(self.location);
+            self.addMarker(pos);
 
             /** call again */
             self.moveTractorOnMap();
@@ -293,20 +318,18 @@ export default {
     },
   },
   mounted() {
-    /** load map and add the current location */
     if (this.user.map_settings.show_joystick == 0) {
       let self = this;
+      /** load map and add the current location */
       helper.getLocation().then((pos) => {
-        self.location = pos;
-        console.log("init current pos:", self.location);
-
         if (!self.map) {
           self.initMap();
-          self.addMarker(self.location);
+          self.addMarker(pos);
           self.redrawMap();
         }
       });
     } else {
+      /** load map and add the current location to GPS set by user */
       this.location.latitude = this.user.map_settings.latitude;
       this.location.longitude = this.user.map_settings.longitude;
       if (!this.map) {

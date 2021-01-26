@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Field;
+use App\Models\FieldAction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class FieldController extends Controller
 {
@@ -14,12 +16,6 @@ class FieldController extends Controller
     {
         $data = $request->toArray();
 
-        if (!isset($data['status']) || $data['status'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
         if (!isset($data['column']) || $data['column'] == "") {
             return response()->json([
                 "success" => false,
@@ -33,7 +29,9 @@ class FieldController extends Controller
             ]);
         }
 
-        $fields = Field::where('user_id', $data['user_id'])->where($data['column'], '!=', $data['status'])->orderBy('field_name', 'ASC')->get();
+        $fields = Field::where('user_id', $data['user_id'])->where($data['column'], '!=', 'completed')
+            ->orderBy('field_name', 'ASC')
+            ->get();
 
         return response()->json([
             "success" => true,
@@ -43,6 +41,7 @@ class FieldController extends Controller
 
     /**
      * add new field
+     * used in seeding action, for the rest of the action we will use update
      */
     public function addField(Request $request)
     {
@@ -58,27 +57,25 @@ class FieldController extends Controller
         $err = [];
 
         if (!isset($data['field_name']) || $data['field_name'] == "") {
-            $err[] = "";
+            $err[] = "Please select or enter a field.";
         }
 
-        if (!isset($data['seed_id']) || $data['seed_id'] == "") {
-            $err[] = "";
+        if (
+            !isset($data['seed_id']) || $data['seed_id'] == ""
+            || !isset($data['seed_name']) || $data['seed_name'] == ""
+        ) {
+            $err[] = "Please select a seed";
         }
 
-        if (!isset($data['seed_name']) || $data['seed_name'] == "") {
-            $err[] = "";
-        }
-
-        if (!isset($data['seed_company_id']) || $data['seed_company_id'] == "") {
-            $err[] = "";
-        }
-
-        if (!isset($data['seed_company_name']) || $data['seed_company_name'] == "") {
-            $err[] = "";
+        if (
+            !isset($data['seed_company_id']) || $data['seed_company_id'] == ""
+            || !isset($data['seed_company_name']) || $data['seed_company_name'] == ""
+        ) {
+            $err[] = "Please select a company";
         }
 
         if (!isset($data['seeding_status']) || $data['seeding_status'] == "") {
-            $err[] = "";
+            $err[] = "Action status not found";
         }
 
         if (count($err) > 0) {
@@ -103,7 +100,7 @@ class FieldController extends Controller
 
     /**
      * update field
-     * TODO: add functionality
+     * TODO: add functionality for fertilizing and harvesting
      */
     public function updateField(Request $request)
     {
@@ -116,9 +113,100 @@ class FieldController extends Controller
             ]);
         }
 
+        if (!isset($data['action_name']) || $data['action_name'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
         return response()->json([
             "success" => true,
             "message" => "not implemented"
+        ]);
+    }
+
+    /**
+     * get locations to display them on map
+     */
+    public function locations(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (!isset($data['field_id']) || $data['field_id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        $getLocations = FieldAction::where('field_id', $data['field_id']);
+        if (isset($data['action_name']) && $data['action_name'] != "") {
+            $getLocations->where('action_name', $data['action_name']);
+        }
+
+        $locationData = ($getLocations->get())->map(function ($item) {
+            return json_decode($item['location']);
+        })->flatten()->all();
+
+        return response()->json([
+            "success" => true,
+            "data" => $locationData
+        ]);
+    }
+
+    /**
+     * add new location for current field
+     */
+    public function newLocation(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (!isset($data['field_id']) || $data['field_id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        if (!isset($data['action_name']) || $data['action_name'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        if (!isset($data['location']) || $data['location'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        if (!isset($data['completed'])) {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        $updateField = $data['completed'];
+        unset($data['completed']);
+
+        /** update field to completed if user chose this option */
+        if($updateField){
+            Field::where('id', $data['field_id'])
+            ->update([
+                $data['action_name'].'_status' => 'completed'
+            ]);
+        }
+
+        $data['location'] = (new Collection($data['location']))->toJson();
+        (new FieldAction($data))->save();
+
+        return response()->json([
+            "success" => true,
+            "message" => "Action was saved."
         ]);
     }
 }

@@ -38,21 +38,33 @@
           class="col-md-8 col-sm-12"
           :class="{ 'd-none': actionName != 'seeding' || actionStarted }"
         >
-          <HomeSeeding :actionName="actionName" @startAction="startAction($event)" />
+          <HomeSeeding
+            :fields="fields"
+            :actionName="actionName"
+            @startAction="startAction($event)"
+          />
         </div>
 
         <div
           class="col-md-8 col-sm-12"
           :class="{ 'd-none': actionName != 'fertilizing' || actionStarted }"
         >
-          <HomeFertilizing :actionName="actionName" @startAction="startAction($event)" />
+          <HomeFertilizing
+            :fields="fields"
+            :actionName="actionName"
+            @startAction="startAction($event)"
+          />
         </div>
 
         <div
           class="col-md-8 col-sm-12"
           :class="{ 'd-none': actionName != 'harvesting' || actionStarted }"
         >
-          <HomeHarvesting :actionName="actionName" @startAction="startAction($event)" />
+          <HomeHarvesting
+            :fields="fields"
+            :actionName="actionName"
+            @startAction="startAction($event)"
+          />
         </div>
         <div
           class="col-sm-12"
@@ -85,7 +97,9 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">Please complete the current action before changing it.</div>
+            <div class="modal-body">
+              Please complete the current action before changing it.
+            </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">
                 Ok
@@ -94,14 +108,13 @@
           </div>
         </div>
       </div>
-
     </div>
-
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import helper from "@/js/helper";
 import NavBar from "@/components/NavBar.vue";
 import $ from "jquery";
 import Map from "@/components/Map.vue";
@@ -125,15 +138,50 @@ export default {
       mapData: [],
       prevGPS: [],
       fieldData: {},
+      user: this.$session.get("user"),
+      fields: [],
     };
   },
   methods: {
     /** change the type of action performed by the farmer */
     changeAction(action) {
       if (this.actionStarted) {
-        $('#errorChangeAction').modal('show');
+        $("#errorChangeAction").modal("show");
         return false;
       }
+
+      let fieldObj = {
+        user_id: this.user.id,
+        column: `${action}_status`,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("farming/field/all", fieldObj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.fields = [
+              {
+                id: "",
+                field_name: "",
+              },
+            ];
+            this.fields = this.fields.concat(result.data);
+            if (action == "seeding") {
+              this.fields.push({
+                id: "new",
+                field_name: "New Field",
+              });
+            }
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
 
       /** reset mapData */
       this.mapData = [];
@@ -144,6 +192,7 @@ export default {
     /** Retrieve data from child component */
     stopAction(event) {
       this.actionStarted = event;
+      this.changeAction(this.actionName);
     },
     startAction(actionData) {
       this.actionStarted = actionData.actionStarted;
