@@ -16,12 +16,6 @@ class FieldController extends Controller
     {
         $data = $request->toArray();
 
-        if (!isset($data['column']) || $data['column'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
         if (!isset($data['user_id']) || $data['user_id'] == "") {
             return response()->json([
                 "success" => false,
@@ -29,13 +23,43 @@ class FieldController extends Controller
             ]);
         }
 
-        $fields = Field::where('user_id', $data['user_id'])->where($data['column'], '!=', 'completed')
-            ->orderBy('field_name', 'ASC')
-            ->get();
+        if (!isset($data['action']) || $data['action'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "No action is selected."
+            ]);
+        }
+
+        $fieldsTemplate = Field::where('user_id', $data['user_id']);
+        $fields = null;
+        switch ($data['action']) {
+            case 'seeding':
+                $fields = $fieldsTemplate->where('seeding_status', '!=', 'completed');
+                break;
+            case 'fertilizing':
+                $fields = $fieldsTemplate->where('seeding_status', 'completed')
+                    ->where(function ($query) {
+                        $query->orWhere('fertilizing_status', null)
+                            ->orWhere('fertilizing_status', 'in_progress');
+                    });
+                break;
+            case 'harvesting':
+                $fields = $fieldsTemplate->where('fertilizing_status', 'completed')
+                    ->where(function ($query) {
+                        $query->orWhere('harvesting_status', null)
+                            ->orWhere('harvesting_status', 'in_progress');
+                    });
+                break;
+            default:
+                return response()->json([
+                    "success" => false,
+                    "message" => "Something is missing, please try again later."
+                ]);
+        }
 
         return response()->json([
             "success" => true,
-            "data" => $fields->all()
+            "data" => ($fields->orderBy('field_name', 'ASC')->get())->all()
         ]);
     }
 
@@ -194,11 +218,11 @@ class FieldController extends Controller
         unset($data['completed']);
 
         /** update field to completed if user chose this option */
-        if($updateField){
+        if ($updateField) {
             Field::where('id', $data['field_id'])
-            ->update([
-                $data['action_name'].'_status' => 'completed'
-            ]);
+                ->update([
+                    $data['action_name'] . '_status' => 'completed'
+                ]);
         }
 
         $data['location'] = (new Collection($data['location']))->toJson();

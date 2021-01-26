@@ -1,6 +1,22 @@
 <template>
   <div id="homeFertilizing">
     <h2 class="actionHeader">Fertilizing</h2>
+    <div class="form-group">
+      <label for="chooseField">Choose Field Name</label>
+      <select
+        class="form-control col-md-7 col-sm-12"
+        id="chooseField"
+        v-model="selectField"
+      >
+        <option
+          v-for="(field, index) in fields"
+          :key="index"
+          v-bind:value="{ id: field.id, field_name: field.field_name, obj: field }"
+        >
+          {{ field.field_name }}
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 
@@ -15,11 +31,12 @@ export default {
   data() {
     return {
       fieldStatus: "in_progress",
-      getNotfieldStatus: "completed",
       user: this.$session.get("user"),
       selectField: {},
       selectFertilizer: {},
       selectCompany: {},
+      fertilizers: [],
+      companies: [],
     };
   },
   methods: {

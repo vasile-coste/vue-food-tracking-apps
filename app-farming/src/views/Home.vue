@@ -152,7 +152,7 @@ export default {
 
       let fieldObj = {
         user_id: this.user.id,
-        column: `${action}_status`,
+        action: `${action}`,
       };
 
       helper.toggleLoadingScreen(true);
