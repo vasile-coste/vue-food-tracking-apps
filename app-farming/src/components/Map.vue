@@ -103,9 +103,7 @@ export default {
   },
   watch: {
     actionStarted() {
-      console.log("trigger start action");
       if (this.actionStarted) {
-        console.log("start action");
         if (!this.map) {
           this.initMap();
         }
@@ -123,7 +121,6 @@ export default {
 
         /** redraw map */
         this.redrawMap();
-        console.log("---------------start action");
         this.addMarker(this.location);
 
         /** start moving tractor on map only if user has selected GPS location */
@@ -162,15 +159,12 @@ export default {
       }
     },
     saveAction(completed) {
-      console.log("mapData", this.fieldData, this.locations);
       let obj = {
         field_id: this.fieldData.id,
         action_name: this.actionName,
         location: this.locations,
         completed: completed
       };
-
-      console.log("save locations", obj);
 
       helper.toggleLoadingScreen(true);
       this.$axios
@@ -234,7 +228,6 @@ export default {
     },
     addMarker(currentMarker) {
       this.locations.push(currentMarker);
-      console.log("add marker",currentMarker, this.locations)
 
       /** replace old marker with a new one */
       if (this.addedMarkers.length > 0) {
