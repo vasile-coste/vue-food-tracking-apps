@@ -284,15 +284,15 @@
     background-color: red;
 }
 
-.map-bullet-seed, .legend-bullet-seed {
+.map-bullet-seeding, .legend-bullet-seed {
     background-color: #ff5809;
 }
 
-.map-bullet-fertilized, .legend-bullet-fertilized {
+.map-bullet-fertilizing, .legend-bullet-fertilized {
     background-color: #dd00dd;
 }
 
-.map-bullet-harvest, .legend-bullet-harvest {
+.map-bullet-harvesting, .legend-bullet-harvest {
     background-color: #aa5500;
 }
 

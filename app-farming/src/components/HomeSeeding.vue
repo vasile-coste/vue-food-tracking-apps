@@ -75,7 +75,9 @@
       <button type="button" class="btn btn-success" @click="startActionBefore">
         Start Seeding
       </button>
-      <small class="form-text text-muted">Once a Field is created you can no longer change the seed and company</small>
+      <small class="form-text text-muted"
+        >Once a Field is created you can no longer change the seed and company</small
+      >
     </div>
   </div>
 </template>
@@ -83,13 +85,14 @@
 import helper from "@/js/helper";
 export default {
   name: "HomeSeeding",
+  props: {
+    actionName: String,
+  },
   data() {
     return {
-      actionName: "Seeding",
       fieldStatus: "in_progress",
       getNotfieldStatus: "completed",
       user: this.$session.get("user"),
-      actionData: {},
       chooseField: true,
       newField: null,
       selectField: {},
@@ -223,6 +226,7 @@ export default {
           },
         ],
         fieldData: this.selectField.obj,
+        prevGPS: [],
       };
 
       this.$emit("startAction", actionData);

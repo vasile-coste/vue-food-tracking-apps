@@ -1,8 +1,8 @@
 <template>
-  <div id="map">
-    <div class="row mt-1">
+  <div id="map" class="mb-3">
+    <div class="row mt-1 mb-1">
       <div
-        class="col-md-2 col-sm-12 mb-1 mapTitle"
+        class="col-md-2 col-sm-12 mapTitle"
         :class="{
           'col-md-12 col-sm-12': actionStarted == false,
           'col-md-2 col-sm-12': actionStarted == true,
@@ -11,7 +11,7 @@
         <img src="@/assets/images/icons/map.png" alt="" />Map
       </div>
       <div
-        class="col-md-8 col-sm-12 mb-1 text-center"
+        class="col-md-8 col-sm-12 text-center"
         :class="{ 'd-none': actionStarted == false }"
       >
         <div class="mapStatus" v-for="(item, index) in mapData" :key="index">
@@ -19,24 +19,68 @@
           <span class="mapStatus-value">{{ item.value }}</span>
         </div>
       </div>
-      <div class="col-md-2 col-sm-12 mb-1" :class="{ 'd-none': actionStarted == false }">
+      <div class="col-md-2 col-sm-12" :class="{ 'd-none': actionStarted == false }">
         <button type="button" class="btn btn-danger" @click="stopAction">Stop</button>
       </div>
     </div>
-    <div id="mapContainer" class="mapContainer mb-3"></div>
-    <div class="mapJoystick" v-if="user.map_settings.show_joystick == 1 && actionStarted == true">
+    <div id="mapContainer" class="mapContainer"></div>
+    <div
+      class="mapJoystick"
+      v-if="user.map_settings.show_joystick == 1 && actionStarted == true"
+    >
       <div class="row">
         <div class="col-12 text-center">
           <button type="button" class="mapJoystick-up" @click="manualMoveUp">Up</button>
         </div>
         <div class="col-6 text-center">
-          <button type="button" class="mapJoystick-left" @click="manualMoveLeft">Left</button>
+          <button type="button" class="mapJoystick-left" @click="manualMoveLeft">
+            Left
+          </button>
         </div>
         <div class="col-6 text-center">
-          <button type="button" class="mapJoystick-right" @click="manualMoveRight">Right</button>
+          <button type="button" class="mapJoystick-right" @click="manualMoveRight">
+            Right
+          </button>
         </div>
         <div class="col-12 text-center">
-          <button type="button" class="mapJoystick-down" @click="manualMoveDown">Down</button>
+          <button type="button" class="mapJoystick-down" @click="manualMoveDown">
+            Down
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="confirmStop"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="confirmStopLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmStopLabel">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="text-primary">Complete the {{ actionName }} proces?</div>
+            <small class="text-muted">
+              If <b>yes</b>, the seeding will be set to <b>completed</b> and the field
+              cannot be selected for this action again.
+            </small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="saveAction(false)">
+              No
+            </button>
+            <button type="button" class="btn btn-primary" @click="saveAction(true)">
+              Yes
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -47,11 +91,14 @@
 import helper from "@/js/helper";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import $ from "jquery";
 export default {
   name: "Map",
   props: {
+    actionName: String,
     actionStarted: Boolean,
     mapData: Array,
+    prevGPS: Array,
     fieldData: Object,
   },
   watch: {
@@ -69,6 +116,10 @@ export default {
         this.addedMarkers = [];
         this.oldCurrentMarker = null;
         this.previousMarkers = [];
+
+        if (this.prevGPS && this.prevGPS.length > 0) {
+          this.addPreviousMarkers(this.prevGPS);
+        }
 
         /** redraw map */
         this.redrawMap();
@@ -101,24 +152,37 @@ export default {
   },
   methods: {
     stopAction() {
-      console.log("mapData", this.mapData, this.locations);
-      this.redrawMap();
-      /** send data to parrent component */
-      this.$emit("stopAction", false);
+      if (this.locations.length > 1) {
+        /** tractor has moved and we need to save progress */
+        $("#confirmStop").modal("show");
+      } else {
+        this.redrawMap();
+        /** send data to parrent component */
+        this.$emit("stopAction", false);
+      }
     },
-    manualMoveUp(){
+    saveAction(completed) {
+      if (completed) {
+        /** complete action */
+      }
+      console.log("mapData", this.fieldData, this.locations);
+
+      this.$emit("stopAction", false);
+      $("#confirmStop").modal("hide");
+    },
+    manualMoveUp() {
       this.location.latitude += this.manualMoveDistanceLat;
       this.addMarker(this.location);
     },
-    manualMoveDown(){
+    manualMoveDown() {
       this.location.latitude -= this.manualMoveDistanceLat;
       this.addMarker(this.location);
     },
-    manualMoveLeft(){
+    manualMoveLeft() {
       this.location.longitude -= this.manualMoveDistanceLong;
       this.addMarker(this.location);
     },
-    manualMoveRight(){
+    manualMoveRight() {
       this.location.longitude += this.manualMoveDistanceLong;
       this.addMarker(this.location);
     },
@@ -172,22 +236,17 @@ export default {
       /** set map to be certered to current marker */
       this.map.setView(new L.LatLng(currentMarker.latitude, currentMarker.longitude), 19);
     },
-    addPreviousMarkers(markers, iconClassCss) {
+    addPreviousMarkers(markers) {
+      let self = this;
       console.log("add prev markers");
       /** create a variable to store the markers and to draw a line between them */
       markers.forEach((marker) => {
-        let mrk = [marker.latitude, marker.longitude];
-
-        let myIcon = {};
-        /** create custom icon */
-        myIcon = {
-          icon: L.divIcon({
-            className: "map-bullet " + iconClassCss,
-          }),
-        };
-
         /** prepare marker for map */
-        let tmpMarker = L.marker(mrk, myIcon).addTo(this.markerGroup);
+        let tmpMarker = L.marker([marker.latitude, marker.longitude], {
+          icon: L.divIcon({
+            className: `map-bullet map-bullet-${self.actionName}`,
+          }),
+        }).addTo(this.markerGroup);
 
         this.previousMarkers.push(tmpMarker);
       });
