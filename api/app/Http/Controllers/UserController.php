@@ -59,6 +59,9 @@ class UserController extends Controller
         $map = MapSettings::where('user_id', $user['id'])->get();
 
         $user['map_settings'] = $map->first();
+        
+        $map['map_settings']['latitude'] = (double) $map['map_settings']['latitude'];
+        $map['map_settings']['longitude'] = (double) $map['map_settings']['longitude'];
 
         // remove password from response
         unset($user['password']);

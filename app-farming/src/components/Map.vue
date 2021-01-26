@@ -2,7 +2,7 @@
   <div id="map">
     <div class="row mt-1">
       <div
-        class="col-md-2 col-sm-12 mapTitle"
+        class="col-md-2 col-sm-12 mb-1 mapTitle"
         :class="{
           'col-md-12 col-sm-12': actionStarted == false,
           'col-md-2 col-sm-12': actionStarted == true,
@@ -11,7 +11,7 @@
         <img src="@/assets/images/icons/map.png" alt="" />Map
       </div>
       <div
-        class="col-md-8 col-sm-12 text-center"
+        class="col-md-8 col-sm-12 mb-1 text-center"
         :class="{ 'd-none': actionStarted == false }"
       >
         <div class="mapStatus" v-for="(item, index) in mapData" :key="index">
@@ -19,11 +19,27 @@
           <span class="mapStatus-value">{{ item.value }}</span>
         </div>
       </div>
-      <div class="col-md-2 col-sm-12" :class="{ 'd-none': actionStarted == false }">
+      <div class="col-md-2 col-sm-12 mb-1" :class="{ 'd-none': actionStarted == false }">
         <button type="button" class="btn btn-danger" @click="stopAction">Stop</button>
       </div>
     </div>
-    <div id="mapContainer" class="mapContainer"></div>
+    <div id="mapContainer" class="mapContainer mb-3"></div>
+    <div class="mapJoystick" v-if="user.map_settings.show_joystick == 1 && actionStarted == true">
+      <div class="row">
+        <div class="col-12 text-center">
+          <button type="button" class="mapJoystick-up" @click="manualMoveUp">Up</button>
+        </div>
+        <div class="col-6 text-center">
+          <button type="button" class="mapJoystick-left" @click="manualMoveLeft">Left</button>
+        </div>
+        <div class="col-6 text-center">
+          <button type="button" class="mapJoystick-right" @click="manualMoveRight">Right</button>
+        </div>
+        <div class="col-12 text-center">
+          <button type="button" class="mapJoystick-down" @click="manualMoveDown">Down</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -68,6 +84,8 @@ export default {
   },
   data() {
     return {
+      manualMoveDistanceLat: 0.0001,
+      manualMoveDistanceLong: 0.00015,
       user: this.$session.get("user"),
       map: null,
       markerGroup: null,
@@ -87,6 +105,22 @@ export default {
       this.redrawMap();
       /** send data to parrent component */
       this.$emit("stopAction", false);
+    },
+    manualMoveUp(){
+      this.location.latitude += this.manualMoveDistanceLat;
+      this.addMarker(this.location);
+    },
+    manualMoveDown(){
+      this.location.latitude -= this.manualMoveDistanceLat;
+      this.addMarker(this.location);
+    },
+    manualMoveLeft(){
+      this.location.longitude -= this.manualMoveDistanceLong;
+      this.addMarker(this.location);
+    },
+    manualMoveRight(){
+      this.location.longitude += this.manualMoveDistanceLong;
+      this.addMarker(this.location);
     },
     initMap() {
       console.log("init map");

@@ -266,12 +266,6 @@
     height: 7px !important;
 }
 
-.map-bullet-circle {
-    padding: 10px;
-    border-radius: 10px;
-    background-color: red;
-}
-
 .map-bullet-tractor {
     height: 40px !important;
     width: 40px !important;
@@ -284,6 +278,12 @@
     background-image: url("../images/tractor-icon.png");
 }
 
+.map-bullet-circle {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: red;
+}
+
 .map-bullet-seed, .legend-bullet-seed {
     background-color: #ff5809;
 }
@@ -294,4 +294,24 @@
 
 .map-bullet-harvest, .legend-bullet-harvest {
     background-color: #aa5500;
+}
+
+.mapJoystick {
+    position: absolute;
+    bottom: 20px;
+    z-index: 400;
+    width: 200px;
+}
+
+.mapJoystick-up, .mapJoystick-left, .mapJoystick-right, .mapJoystick-down {
+    padding: 4px;
+    width: 65px;
+    border: 1px solid #009A7F;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.mapJoystick-up:active, .mapJoystick-left:active, .mapJoystick-right:active, .mapJoystick-down:active {
+    position: relative;
+    top: 1px;
 }

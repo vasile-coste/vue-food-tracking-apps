@@ -19,11 +19,13 @@ class MapSettingsController extends Controller
             ]);
         }
 
-        $map = MapSettings::where('user_id', $user_id)->get();
+        $map = (MapSettings::where('user_id', $user_id)->get())->first();
 
+        $map['latitude'] = (double) $map['latitude'];
+        $map['longitude'] = (double) $map['longitude'];
         return response()->json([
             "success" => true,
-            "data" => $map->first()
+            "data" => $map
         ]);
     }
 
@@ -84,12 +86,14 @@ class MapSettingsController extends Controller
         }
 
         MapSettings::where('id', $data['id'])->update($data);
-        $getMapSettings = MapSettings::find($data['id'])->get();
+        $getMapSettings = (MapSettings::find($data['id'])->get())->first();
+        $getMapSettings['latitude'] = (double) $getMapSettings['latitude'];
+        $getMapSettings['longitude'] = (double) $getMapSettings['longitude'];
 
         return response()->json([
             "success" => true,
             "message" => "Map Settings we updated successfully.",
-            "data" => $getMapSettings->first()
+            "data" => $getMapSettings
         ]);
 
     }
