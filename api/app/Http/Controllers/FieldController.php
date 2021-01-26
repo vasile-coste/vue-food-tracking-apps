@@ -64,18 +64,18 @@ class FieldController extends Controller
             !isset($data['seed_id']) || $data['seed_id'] == ""
             || !isset($data['seed_name']) || $data['seed_name'] == ""
         ) {
-            $err[] = "Please select a seed";
+            $err[] = "Please select a seed.";
         }
 
         if (
             !isset($data['seed_company_id']) || $data['seed_company_id'] == ""
             || !isset($data['seed_company_name']) || $data['seed_company_name'] == ""
         ) {
-            $err[] = "Please select a company";
+            $err[] = "Please select a company.";
         }
 
         if (!isset($data['seeding_status']) || $data['seeding_status'] == "") {
-            $err[] = "Action status not found";
+            $err[] = "Action status not found.";
         }
 
         if (count($err) > 0) {
