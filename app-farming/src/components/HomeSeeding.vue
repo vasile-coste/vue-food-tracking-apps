@@ -121,10 +121,18 @@ export default {
           name: this.selectField.obj.seed_name,
         };
 
-        this.companies.push({
-          id: this.selectField.obj.seed_company_id,
-          company_name: this.selectField.obj.seed_company_name,
+        let companyExistsInSelect = false;
+        this.companies.forEach((company) => {
+          if (company.id == this.selectField.obj.seed_company_id) {
+            companyExistsInSelect = true;
+          }
         });
+        if (companyExistsInSelect == false) {
+          this.companies.push({
+            id: this.selectField.obj.seed_company_id,
+            company_name: this.selectField.obj.seed_company_name,
+          });
+        }
 
         this.selectCompany = {
           id: this.selectField.obj.seed_company_id,
@@ -220,13 +228,13 @@ export default {
       };
 
       let obj = {
-        field_id:this.selectField.obj.id,
-        action_name:this.actionName
-      }
+        field_id: this.selectField.obj.id,
+        action_name: this.actionName,
+      };
 
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post('farming/field/location/all', obj)
+        .post("farming/field/location/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {

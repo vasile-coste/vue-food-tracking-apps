@@ -7,6 +7,7 @@
         class="form-control col-md-7 col-sm-12"
         id="chooseField"
         v-model="selectField"
+        @change="getComanyAndFertilizer"
       >
         <option
           v-for="(field, index) in fields"
@@ -14,6 +15,24 @@
           v-bind:value="{ id: field.id, field_name: field.field_name, obj: field }"
         >
           {{ field.field_name }}
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="chooseFertilizer">Choose Fertilizer</label>
+      <select
+        class="form-control col-md-7 col-sm-12"
+        id="chooseFertilizer"
+        v-model="selectFertilizer"
+        @change="getComanyByFertilizer"
+        :disabled="fieldIsInProgress"
+      >
+        <option
+          v-for="(fertilizer, index) in fertilizers"
+          :key="index"
+          v-bind:value="{ id: fertilizer.id, name: fertilizer.name }"
+        >
+          {{ fertilizer.name }}
         </option>
       </select>
     </div>
@@ -37,9 +56,17 @@ export default {
       selectCompany: {},
       fertilizers: [],
       companies: [],
+      fieldIsInProgress: false,
     };
   },
   methods: {
+    getComanyAndFertilizer() {
+      console.log(this.selectField.obj);
+      // if(this.selectField.obj.fertilizing_status)
+    },
+    getComanyByFertilizer(){
+      console.log(this.selectFertilizer);
+    },
     startAction() {
       let actionData = {
         actionStarted: true,
