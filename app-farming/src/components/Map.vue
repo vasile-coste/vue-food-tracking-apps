@@ -116,7 +116,10 @@ export default {
         this.previousMarkers = [];
 
         if (this.prevGPS && this.prevGPS.length > 0) {
-          this.addPreviousMarkers(this.prevGPS);
+          let self = this;
+          this.prevGPS.forEach((loc) => {
+            self.addPreviousMarkers(loc.location, loc.action_name);
+          });
         }
 
         /** redraw map */
@@ -163,7 +166,7 @@ export default {
         field_id: this.fieldData.id,
         action_name: this.actionName,
         location: this.locations,
-        completed: completed
+        completed: completed,
       };
 
       helper.toggleLoadingScreen(true);
@@ -186,34 +189,22 @@ export default {
     },
     manualMoveUp() {
       this.location.latitude += this.manualMoveDistanceLat;
-      let newPos = {
-        latitude: this.location.latitude,
-        longitude: this.location.longitude
-      };
+      let newPos = {...this.location};
       this.addMarker(newPos);
     },
     manualMoveDown() {
       this.location.latitude -= this.manualMoveDistanceLat;
-      let newPos = {
-        latitude: this.location.latitude,
-        longitude: this.location.longitude
-      };
+      let newPos = {...this.location};
       this.addMarker(newPos);
     },
     manualMoveLeft() {
       this.location.longitude -= this.manualMoveDistanceLong;
-      let newPos = {
-        latitude: this.location.latitude,
-        longitude: this.location.longitude
-      };
+      let newPos = {...this.location};
       this.addMarker(newPos);
     },
     manualMoveRight() {
       this.location.longitude += this.manualMoveDistanceLong;
-      let newPos = {
-        latitude: this.location.latitude,
-        longitude: this.location.longitude
-      };
+      let newPos = {...this.location};
       this.addMarker(newPos);
     },
     initMap() {
@@ -227,6 +218,18 @@ export default {
       this.markerGroup = L.layerGroup().addTo(this.map);
     },
     addMarker(currentMarker) {
+      if (this.locations.length > 1) {
+        /** check if marker is set for this action - usefull when tractior is stationary */
+        let oldMarkerLocation = Object.assign({}, this.locations[this.locations.length - 1]);
+        if (
+          oldMarkerLocation.latitude == currentMarker.latitude &&
+          oldMarkerLocation.longitude == currentMarker.longitude
+        ) {
+          /** marker already set for this current action */
+          return;
+        }
+      }
+
       this.locations.push(currentMarker);
 
       /** replace old marker with a new one */
@@ -246,8 +249,11 @@ export default {
         this.addedMarkers.push(tmpMapLAyer);
       }
 
-      /** set current marker as old marker to replace it next time a marker gets added */
-      this.oldCurrentMarker = currentMarker;
+      /** 
+       * set current marker as old marker to replace it next time a marker gets added 
+       * clone the obj to avoid closure
+       */
+      this.oldCurrentMarker = {...currentMarker};
 
       /** add current marker */
       let tmpMarker = L.marker([currentMarker.latitude, currentMarker.longitude], {
@@ -261,14 +267,14 @@ export default {
       /** set map to be certered to current marker */
       this.map.setView(new L.LatLng(currentMarker.latitude, currentMarker.longitude), 19);
     },
-    addPreviousMarkers(markers) {
+    addPreviousMarkers(markers, action) {
       let self = this;
       /** create a variable to store the markers and to draw a line between them */
       markers.forEach((marker) => {
         /** prepare marker for map */
         let tmpMarker = L.marker([marker.latitude, marker.longitude], {
           icon: L.divIcon({
-            className: `map-bullet map-bullet-${self.actionName}`,
+            className: `map-bullet map-bullet-${action}`,
           }),
         }).addTo(this.markerGroup);
 

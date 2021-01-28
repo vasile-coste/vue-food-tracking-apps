@@ -224,30 +224,9 @@ export default {
           },
         ],
         fieldData: this.selectField.obj,
-        prevGPS: [],
       };
 
-      let obj = {
-        field_id: this.selectField.obj.id,
-        action_name: this.actionName,
-      };
-
-      helper.toggleLoadingScreen(true);
-      this.$axios
-        .post("farming/field/location/all", obj)
-        .then((res) => {
-          let result = JSON.parse(res.request.response);
-          if (result.success) {
-            actionData.prevGPS = result.data;
-            this.$emit("startAction", actionData);
-          } else {
-            helper.showWarning(result.message);
-          }
-          helper.toggleLoadingScreen(false);
-        })
-        .catch(() => {
-          helper.toggleLoadingScreen(false);
-        });
+      this.$emit("startAction", actionData);
     },
     getSeeds() {
       helper.toggleLoadingScreen(true);

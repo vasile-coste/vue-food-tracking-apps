@@ -45,7 +45,6 @@ export default {
           },
         ],
         fieldData: this.selectField.obj,
-        prevGPS: [],
       };
 
       this.$emit("startAction", actionData);

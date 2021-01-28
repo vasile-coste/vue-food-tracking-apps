@@ -103,7 +103,6 @@ export default {
         latitude: this.latitude,
         longitude: this.longitude,
       };
-      console.log(mapObj);
 
       let err = false;
       if (mapObj.show_joystick == 1) {

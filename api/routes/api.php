@@ -87,7 +87,7 @@ Route::group(['prefix' => 'farming'], function () {
         Route::post('/update', [FieldController::class, 'updateField']);
         /** Map progress */
         Route::group(['prefix' => 'location'], function () {
-            Route::post('all', [FieldController::class, 'locations']);
+            Route::get('{field_id}', [FieldController::class, 'locations']);
             Route::post('add', [FieldController::class, 'newLocation']);
         });
     });

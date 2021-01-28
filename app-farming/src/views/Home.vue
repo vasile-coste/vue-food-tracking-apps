@@ -195,10 +195,26 @@ export default {
       this.changeAction(this.actionName);
     },
     startAction(actionData) {
-      this.actionStarted = actionData.actionStarted;
-      this.mapData = actionData.mapData;
-      this.fieldData = actionData.fieldData;
-      this.prevGPS = actionData.prevGPS;
+      if (actionData.actionStarted == true) {
+        helper.toggleLoadingScreen(true);
+        this.$axios
+          .get(`farming/field/location/${actionData.fieldData.id}`)
+          .then((res) => {
+            let result = JSON.parse(res.request.response);
+            if (result.success) {
+              this.actionStarted = actionData.actionStarted;
+              this.mapData = actionData.mapData;
+              this.fieldData = actionData.fieldData;
+              this.prevGPS = result.data;
+            } else {
+              helper.showWarning(result.message);
+            }
+            helper.toggleLoadingScreen(false);
+          })
+          .catch(() => {
+            helper.toggleLoadingScreen(false);
+          });
+      }
     },
   },
   mounted() {

@@ -151,27 +151,23 @@ class FieldController extends Controller
     }
 
     /**
-     * get locations to display them on map
+     * get locations to display them on map by field id
      */
-    public function locations(Request $request)
+    public function locations(int $field_id)
     {
-        $data = $request->toArray();
-
-        if (!isset($data['field_id']) || $data['field_id'] == "") {
+        if (!isset($field_id) || $field_id == "") {
             return response()->json([
                 "success" => false,
                 "message" => "Something is missing, please try again later."
             ]);
         }
 
-        $getLocations = FieldAction::where('field_id', $data['field_id']);
-        if (isset($data['action_name']) && $data['action_name'] != "") {
-            $getLocations->where('action_name', $data['action_name']);
-        }
+        $getLocations = FieldAction::where('field_id', $field_id);
 
         $locationData = ($getLocations->get())->map(function ($item) {
-            return json_decode($item['location']);
-        })->flatten()->all();
+            $item['location'] = json_decode($item['location']);
+            return $item;
+        })->all();
 
         return response()->json([
             "success" => true,
