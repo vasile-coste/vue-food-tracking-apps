@@ -36,11 +36,37 @@
         </option>
       </select>
     </div>
+    <div class="form-group">
+      <label for="chooseFertilizerCompany">Choose Fertilizer Company</label>
+      <select
+        class="form-control col-md-7 col-sm-12"
+        id="chooseFertilizerCompany"
+        v-model="selectCompany"
+        :disabled="fieldIsInProgress"
+      >
+        <option
+          v-for="(company, index) in companies"
+          :key="index"
+          v-bind:value="{ id: company.id, company_name: company.company_name }"
+        >
+          {{ company.company_name }}
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <button type="button" class="btn btn-success" @click="startActionBefore">
+        Start Seeding
+      </button>
+      <small class="form-text text-muted"
+        >Once a fertilizer and a company is selected for a field you can no longer change
+        them</small
+      >
+    </div>
   </div>
 </template>
 
 <script>
-// import helper from "@/js/helper";
+import helper from "@/js/helper";
 export default {
   name: "HomeFertilizing",
   props: {
@@ -56,16 +82,134 @@ export default {
       selectCompany: {},
       fertilizers: [],
       companies: [],
-      fieldIsInProgress: false,
+      fieldIsInProgress: true,
     };
   },
   methods: {
     getComanyAndFertilizer() {
-      console.log(this.selectField.obj);
-      // if(this.selectField.obj.fertilizing_status)
+      this.fieldIsInProgress = true;
+      this.selectFertilizer = {};
+      this.selectCompany = {};
+
+      if (this.selectField.obj) {
+        if (this.selectField.obj.fertilizing_status == "in_progress") {
+          this.fieldIsInProgress = true;
+
+          this.selectFertilizer = {
+            id: this.selectField.obj.fertilizer_id,
+            name: this.selectField.obj.fertilizer_name,
+          };
+
+          let companyExistsInSelect = false;
+          this.companies.forEach((company) => {
+            if (company.id == this.selectField.obj.seed_company_id) {
+              companyExistsInSelect = true;
+            }
+          });
+          if (companyExistsInSelect == false) {
+            this.companies.push({
+              id: this.selectField.obj.seed_company_id,
+              company_name: this.selectField.obj.seed_company_name,
+            });
+          }
+
+          this.selectCompany = {
+            id: this.selectField.obj.seed_company_id,
+            company_name: this.selectField.obj.seed_company_name,
+          };
+        } else if (this.selectField.id == "") {
+          this.fieldIsInProgress = true;
+        } else {
+          this.fieldIsInProgress = false;
+        }
+      }
     },
-    getComanyByFertilizer(){
-      console.log(this.selectFertilizer);
+    getFertilizer() {
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get(`farming/fertilizing/fertilizer/${this.user.id}`)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.fertilizers = result.data;
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    getComanyByFertilizer() {
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .get(`farming/fertilizing/companies/${this.user.id}/${this.selectFertilizer.id}`)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.companies = result.data;
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    startActionBefore() {
+      let err = false;
+      console.log(this.selectField);
+      if (Object.keys(this.selectField).length === 0 || this.selectField.id == "") {
+        helper.showWarning("Please select or enter a new field.");
+        err = true;
+      }
+
+      if (Object.keys(this.selectFertilizer).length === 0) {
+        helper.showWarning("Please select a fertilizer.");
+        err = true;
+      }
+
+      if (Object.keys(this.selectCompany).length === 0) {
+        helper.showWarning("Please select a company.");
+        err = true;
+      }
+
+      if (err) {
+        return;
+      }
+
+      if (this.fieldIsInProgress == true) {
+        this.startAction();
+      } else {
+        let fieldObj = {
+          id: this.selectField.id,
+          fertilizer_id: this.selectFertilizer.id,
+          fertilizer_name: this.selectFertilizer.name,
+          fertilizer_company_id: this.selectCompany.id,
+          fertilizer_company_name: this.selectCompany.company_name,
+          fertilizing_status: "in_progress",
+        };
+        // add new field and return it as obj
+        helper.toggleLoadingScreen(true);
+        this.$axios
+          .post("farming/field/update", fieldObj)
+          .then((res) => {
+            let result = JSON.parse(res.request.response);
+            if (result.success) {
+              this.fieldIsInProgress = true;
+              this.selectField.obj = result.data;
+              this.startAction();
+            } else {
+              helper.showWarning(result.message);
+            }
+            helper.toggleLoadingScreen(false);
+          })
+          .catch(() => {
+            helper.toggleLoadingScreen(false);
+          });
+      }
     },
     startAction() {
       let actionData = {
@@ -94,6 +238,8 @@ export default {
       this.$emit("startAction", actionData);
     },
   },
-  mounted() {},
+  mounted() {
+    this.getFertilizer();
+  },
 };
 </script>

@@ -91,7 +91,6 @@ export default {
   },
   data() {
     return {
-      fieldStatus: "in_progress",
       user: this.$session.get("user"),
       chooseField: true,
       newField: null,
@@ -142,8 +141,8 @@ export default {
     },
     startActionBefore() {
       let err = false;
-      if (
-        (this.selectField.id == "new" || this.selectField.id == "") &&
+      if ( 
+        (Object.keys(this.selectField).length === 0 || this.selectField.id == "new" || this.selectField.id == "") &&
         (!this.newField || this.newField.length == 0)
       ) {
         helper.showWarning("Please select or enter a new field.");
@@ -174,7 +173,7 @@ export default {
           seed_name: this.selectSeed.name,
           seed_company_id: this.selectCompany.id,
           seed_company_name: this.selectCompany.company_name,
-          seeding_status: this.fieldStatus,
+          seeding_status: "in_progress",
         };
         // add new field and return it as obj
         helper.toggleLoadingScreen(true);
@@ -231,7 +230,7 @@ export default {
     getSeeds() {
       helper.toggleLoadingScreen(true);
       this.$axios
-        .get("farming/seeding/seed/" + this.user.id)
+        .get(`farming/seeding/seed/${this.user.id}`)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
@@ -249,7 +248,7 @@ export default {
       this.selectCompany = {};
       helper.toggleLoadingScreen(true);
       this.$axios
-        .get("farming/seeding/companies/" + this.user.id + "/" + this.selectSeed.id)
+        .get(`farming/seeding/companies/${this.user.id}/${this.selectSeed.id}`)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {

@@ -130,23 +130,21 @@ class FieldController extends Controller
     {
         $data = $request->toArray();
 
-        if (!isset($data['user_id']) || $data['user_id'] == "") {
+        if (!isset($data['id']) || $data['id'] == "") {
             return response()->json([
                 "success" => false,
                 "message" => "Something is missing, please try again later."
             ]);
         }
 
-        if (!isset($data['action_name']) || $data['action_name'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
+        $id = $data['id'];
+        unset($data['id']);
+        Field::where('id', $id)->update($data);
 
         return response()->json([
             "success" => true,
-            "message" => "not implemented"
+            "data" => Field::find($id),
+            "message" => "Field updated succesfully"
         ]);
     }
 
