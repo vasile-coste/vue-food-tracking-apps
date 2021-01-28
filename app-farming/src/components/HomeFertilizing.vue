@@ -183,6 +183,7 @@ export default {
       if (this.fieldIsInProgress == true) {
         this.startAction();
       } else {
+        /** update field */
         let fieldObj = {
           id: this.selectField.id,
           fertilizer_id: this.selectFertilizer.id,
@@ -191,7 +192,7 @@ export default {
           fertilizer_company_name: this.selectCompany.company_name,
           fertilizing_status: "in_progress",
         };
-        // add new field and return it as obj
+
         helper.toggleLoadingScreen(true);
         this.$axios
           .post("farming/field/update", fieldObj)
