@@ -75,7 +75,6 @@ export default {
   },
   data() {
     return {
-      fieldStatus: "in_progress",
       user: this.$session.get("user"),
       selectField: {},
       selectFertilizer: {},
@@ -160,7 +159,6 @@ export default {
     },
     startActionBefore() {
       let err = false;
-      console.log(this.selectField);
       if (Object.keys(this.selectField).length === 0 || this.selectField.id == "") {
         helper.showWarning("Please select or enter a new field.");
         err = true;
