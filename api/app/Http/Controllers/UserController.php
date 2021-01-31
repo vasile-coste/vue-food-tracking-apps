@@ -48,7 +48,7 @@ class UserController extends Controller
 
         //check password and convert to array
         $user = ($checkUser->first())->toArray();
-        if(!Hash::check($data['password'], $user['password'])){
+        if (!Hash::check($data['password'], $user['password'])) {
             return response()->json([
                 "success" => false,
                 "message" => "Credentials are not valid."
@@ -56,12 +56,12 @@ class UserController extends Controller
         }
 
         // get map settings
-        $map = MapSettings::where('user_id', $user['id'])->get();
+        $map = (MapSettings::where('user_id', $user['id'])->get())->first();
 
-        $user['map_settings'] = $map->first();
-        
-        $map['map_settings']['latitude'] = (double) $map['map_settings']['latitude'];
-        $map['map_settings']['longitude'] = (double) $map['map_settings']['longitude'];
+        $user['map_settings'] = $map->toArray();
+
+        $user['map_settings']['latitude'] = (float) $user['map_settings']['latitude'];
+        $user['map_settings']['longitude'] = (float) $user['map_settings']['longitude'];
 
         // remove password from response
         unset($user['password']);
@@ -138,6 +138,67 @@ class UserController extends Controller
         return response()->json([
             "success" => true,
             "message" => "Account created!"
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (count($data) != 6) {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        if (!isset($data['id']) || $data['id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        $err = [];
+
+        if (!isset($data['first_name']) || $data['first_name'] == "") {
+            $err[] = "Please complete First name.";
+        }
+        if (!isset($data['last_name']) || $data['last_name'] == "") {
+            $err[] = "Please complete Last name.";
+        }
+        if (!isset($data['company']) || $data['company'] == "") {
+            $err[] = "Please complete Company.";
+        }
+        if (!isset($data['phone']) || $data['phone'] == "") {
+            $err[] = "Please complete Phone.";
+        }
+        if (!isset($data['address']) || $data['address'] == "") {
+            $err[] = "Please complete Address.";
+        }
+
+        if (count($err) > 0) {
+            return response()->json([
+                "success" => false,
+                "message" => implode(" ", $err)
+            ]);
+        }
+
+        User::where('id', $data['id'])
+            ->update($data);
+
+        $user = User::find($data['id'])->get()->first()->toArray();
+        $map = (MapSettings::where('user_id', $user['id'])->get())->first();
+
+        $user['map_settings'] = $map->toArray();
+
+        $user['map_settings']['latitude'] = (float) $user['map_settings']['latitude'];
+        $user['map_settings']['longitude'] = (float) $user['map_settings']['longitude'];
+
+        return response()->json([
+            "success" => true,
+            "message" => "Profile updated successfully.",
+            "data" => $user
         ]);
     }
 

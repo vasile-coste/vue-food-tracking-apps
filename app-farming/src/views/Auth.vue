@@ -186,73 +186,69 @@ export default {
       }
     },
     registerAction() {
-      let requireInput = [];
-      let passwordMatch = null;
+      let err = false;
 
       if (!this.register.first_name) {
-        requireInput.push("First name");
+        helper.showWarning("Please complete First name");
+        err = true;
       }
       if (!this.register.last_name) {
-        requireInput.push("Last name");
+        helper.showWarning("Please complete Last name");
+        err = true;
       }
       if (!this.register.company) {
-        requireInput.push("Company");
+        helper.showWarning("Please complete Company");
+        err = true;
       }
       if (!this.register.email) {
-        requireInput.push("Email");
+        helper.showWarning("Please complete Email");
+        err = true;
       }
       if (!this.register.phone) {
-        requireInput.push("Phone");
+        helper.showWarning("Please complete Phone");
+        err = true;
       }
       if (!this.register.password1) {
-        requireInput.push("Password");
+        helper.showWarning("Please complete Password");
+        err = true;
       }
       if (!this.register.password2) {
-        requireInput.push("Confirm password");
+        helper.showWarning("Please complete Confirm password");
+        err = true;
       }
       if (!this.register.address) {
-        requireInput.push("Address");
+        helper.showWarning("Please complete Address");
+        err = true;
       }
       if (this.register.password1 && this.register.password2) {
-        passwordMatch =
-          this.register.password1 !== this.register.password2
-            ? "Passwords don't match."
-            : "";
+        if (this.register.password1 !== this.register.password2) {
+          helper.showWarning("Passwords don't match");
+          err = true;
+        }
       }
 
-      if (requireInput.length > 0 || passwordMatch) {
-        let errMsg = "";
-
-        if (requireInput.length > 0) {
-          errMsg += "Please fill: " + requireInput.join(", ") + ". ";
-        }
-        if (passwordMatch) {
-          errMsg += passwordMatch;
-        }
-
-        helper.showWarning(errMsg);
-
+      if (err) {
         return;
-      } else {
-        helper.toggleLoadingScreen(true);
-        this.$axios
-          .post("auth/register", this.register)
-          .then((res) => {
-            let result = JSON.parse(res.request.response);
-            if (result.success) {
-              this.login.email = this.register.email;
-              this.login.password = this.register.password1;
-              this.signUp = false;
-              helper.showSuccess(result.message);
-            } else {
-              helper.showWarning(result.message);
-            }
-            helper.toggleLoadingScreen(false);
-          })
-          .catch(() => {
-            helper.toggleLoadingScreen(false);
-          });
       }
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("auth/register", this.register)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.login.email = this.register.email;
+            this.login.password = this.register.password1;
+            this.signUp = false;
+            helper.showSuccess(result.message);
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
     },
     toggleForms() {
       this.signUp = !this.signUp;

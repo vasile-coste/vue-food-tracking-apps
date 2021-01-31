@@ -25,8 +25,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 /** User */
-Route::post('/auth/register', [UserController::class, 'register']);
-Route::post('/auth/login', [UserController::class, 'login']);
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('register', [UserController::class, 'register']);
+    Route::post('login', [UserController::class, 'login']);
+    Route::post('update-profile', [UserController::class, 'updateProfile']);
+});
 
 // Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);
 /** Farming */
