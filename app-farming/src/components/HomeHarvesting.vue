@@ -19,10 +19,10 @@
       </select>
     </div>
     <div class="form-group">
-      <label for="chooseFertilizerCompany">Choose Fertilizer Company</label>
+      <label for="chooseHarvestingCompany">Choose Harvesting Company</label>
       <select
         class="form-control col-md-7 col-sm-12"
-        id="chooseFertilizerCompany"
+        id="chooseHarvestingCompany"
         v-model="selectCompany"
         :disabled="fieldIsInProgress"
       >
