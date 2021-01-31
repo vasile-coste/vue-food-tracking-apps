@@ -38,7 +38,9 @@ class UserController extends Controller
             ]);
         }
 
-        $checkUser = User::where('email', $data['email'])->get();
+        $checkUser = User::where('email', $data['email'])
+            ->where('user_type', $data['user_type'])
+            ->get();
         if ($checkUser->count() == 0) {
             return response()->json([
                 "success" => false,
