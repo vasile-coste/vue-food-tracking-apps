@@ -29,6 +29,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [UserController::class, 'register']);
     Route::post('login', [UserController::class, 'login']);
     Route::post('update-profile', [UserController::class, 'updateProfile']);
+    Route::post('update-password', [UserController::class, 'updatePassword']);
 });
 
 // Route::get('/farming/seeding/seed/{user_id}', [SeedingController::class, 'seeds']);

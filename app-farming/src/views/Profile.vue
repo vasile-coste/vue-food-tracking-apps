@@ -65,13 +65,44 @@
             />
           </div>
           <div class="form-group">
+            <label for="password" class="col-form-label">Current Password:</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              v-model="profile.current"
+            />
+          </div>
+          <div class="form-group">
             <button type="button" class="btn btn-primary" @click="updateProfile">
-              Update
+              Update Profile
             </button>
           </div>
         </div>
         <div class="col-md-5 col-sm-12">
           <h2 class="actionHeader">Update Password</h2>
+          <div class="form-group">
+            <label for="current" class="col-form-label">Current Password:</label>
+            <input
+              type="password"
+              class="form-control"
+              id="current"
+              v-model="password.current"
+            />
+          </div>
+          <div class="form-group">
+            <label for="new1" class="col-form-label">New Password:</label>
+            <input type="password" class="form-control" id="new1" v-model="password.new1" />
+          </div>
+          <div class="form-group">
+            <label for="new2" class="col-form-label">Re-type new Password:</label>
+            <input type="password" class="form-control" id="new2" v-model="password.new2" />
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-primary" @click="updatePassword">
+              Update Password
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -96,6 +127,12 @@ export default {
         company: null,
         phone: null,
         address: null,
+        current: null,
+      },
+      password: {
+        current: null,
+        new1: null,
+        new2: null,
       },
     };
   },
@@ -122,6 +159,10 @@ export default {
         helper.showWarning("Please complete Address");
         err = true;
       }
+      if (!this.profile.current) {
+        helper.showWarning("Please complete Current Password");
+        err = true;
+      }
 
       if (err) {
         return;
@@ -138,6 +179,51 @@ export default {
             this.user = result.data;
             this.$session.remove("user");
             this.$session.set("user", this.user);
+            helper.showSuccess(result.message);
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    updatePassword() {
+      let err = false;
+
+      if (!this.password.current) {
+        helper.showWarning("Please complete Current Password");
+        err = true;
+      }
+      if (!this.password.new1) {
+        helper.showWarning("Please complete New Password");
+        err = true;
+      }
+      if (!this.password.new2) {
+        helper.showWarning("Please re-enter new password");
+        err = true;
+      }
+
+      if (this.password.new1 && this.password.new2) {
+        if (this.password.new1 !== this.password.new2) {
+          helper.showWarning("Passwords don't match");
+          err = true;
+        }
+      }
+
+      if (err) {
+        return;
+      }
+
+      this.password.id = this.user.id;
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("auth/update-password", this.password)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
             helper.showSuccess(result.message);
           } else {
             helper.showWarning(result.message);

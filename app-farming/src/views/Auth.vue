@@ -175,7 +175,6 @@ export default {
               helper.showSuccess(result.message);
               this.redirect();
             } else {
-              this.message.warning = result.message;
               helper.showWarning(result.message);
             }
             helper.toggleLoadingScreen(false);

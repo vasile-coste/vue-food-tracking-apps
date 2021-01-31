@@ -145,7 +145,7 @@ class UserController extends Controller
     {
         $data = $request->toArray();
 
-        if (count($data) != 6) {
+        if (count($data) != 7) {
             return response()->json([
                 "success" => false,
                 "message" => "Something is missing, please try again later."
@@ -176,6 +176,9 @@ class UserController extends Controller
         if (!isset($data['address']) || $data['address'] == "") {
             $err[] = "Please complete Address.";
         }
+        if (!isset($data['current']) || $data['current'] == "") {
+            $err[] = "Please complete Current Password.";
+        }
 
         if (count($err) > 0) {
             return response()->json([
@@ -183,6 +186,17 @@ class UserController extends Controller
                 "message" => implode(" ", $err)
             ]);
         }
+
+        $checkUser = User::find($data['id'])->get();
+        $user = ($checkUser->first())->toArray();
+        if (!Hash::check($data['current'], $user['password'])) {
+            return response()->json([
+                "success" => false,
+                "message" => "Current password is not valid."
+            ]);
+        }
+
+        unset($data['current']);
 
         User::where('id', $data['id'])
             ->update($data);
@@ -199,6 +213,66 @@ class UserController extends Controller
             "success" => true,
             "message" => "Profile updated successfully.",
             "data" => $user
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (count($data) != 4) {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        if (!isset($data['id']) || $data['id'] == "") {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+        $err = [];
+
+        if (!isset($data['current']) || $data['current'] == "") {
+            $err[] = "Please complete Current Password.";
+        }
+        if (!isset($data['new1']) || $data['new1'] == "") {
+            $err[] = "Please complete New Password.";
+        }
+        if (!isset($data['new2']) || $data['new2'] == "") {
+            $err[] = "Please re-enter new password.";
+        }
+        if ($data['new2'] != $data['new2']) {
+            $err[] = "Passwords don't match.";
+        }
+
+        if (count($err) > 0) {
+            return response()->json([
+                "success" => false,
+                "message" => implode(" ", $err)
+            ]);
+        }
+
+        $checkUser = User::find($data['id'])->get();
+        $user = ($checkUser->first())->toArray();
+        if (!Hash::check($data['current'], $user['password'])) {
+            return response()->json([
+                "success" => false,
+                "message" => "Current password is not valid."
+            ]);
+        }
+
+        User::where('id', $data['id'])
+            ->update([
+                'password' => Hash::make($data['new1'])
+            ]);
+
+        return response()->json([
+            "success" => true,
+            "message" => "Password updated successfully."
         ]);
     }
 
