@@ -29,6 +29,7 @@ let helper = {
                 position: fixed;
                 top: 0;
                 left: 0;
+                z-index: 1050;
             }
             
             .loading-element:before {

@@ -34,4 +34,5 @@
 - `npm i jquery`
 - `npm i leaflet`
 - `npm i popper.js`
+- `npm i qrcode`
 - tut -> https://bitbucket.org/blog/creating-a-vue-js-application

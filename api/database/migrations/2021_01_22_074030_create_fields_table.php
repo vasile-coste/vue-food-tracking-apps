@@ -30,6 +30,7 @@ class CreateFieldsTable extends Migration
             $table->integer('harvesting_company_id')->nullable();
             $table->string('harvesting_company_name')->nullable();
             $table->string('harvesting_status')->nullable();
+            $table->boolean('products_sold')->default(false);
             $table->timestamps();
         });
     }

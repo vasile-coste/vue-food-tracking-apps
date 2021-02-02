@@ -8,6 +8,7 @@ use App\Http\Controllers\FertilizingController;
 use App\Http\Controllers\HarvestingController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\MapSettingsController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,5 +95,16 @@ Route::group(['prefix' => 'farming'], function () {
             Route::get('{field_id}', [FieldController::class, 'locations']);
             Route::post('add', [FieldController::class, 'newLocation']);
         });
+    });
+});
+
+Route::group(['prefix' => 'packaging'], function () {
+    /** Products */
+    Route::group(['prefix' => 'product'], function () {
+        Route::post('/add', [ProductController::class, 'addProduct']);
+        Route::post('/update', [ProductController::class, 'updateProduct']);
+        Route::post('/delete', [ProductController::class, 'deleteProduct']);
+        Route::post('/all', [ProductController::class, 'getProducts']);
+        Route::get('/fields', [ProductController::class, 'getFields']);
     });
 });

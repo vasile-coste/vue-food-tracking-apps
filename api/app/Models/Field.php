@@ -30,5 +30,6 @@ class Field extends Model
         'harvesting_company_id',
         'harvesting_company_name',
         'harvesting_status',
+        'products_sold'
     ];
 }
