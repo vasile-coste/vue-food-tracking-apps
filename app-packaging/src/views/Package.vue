@@ -14,7 +14,7 @@
     <!-- Content -->
     <div class="container">
       <div class="row">
-        <div class="col-sm-12 col-md-12">
+        <div class="col-sm-12 col-md-12 sticky">
           <button
             type="button"
             class="btn btn-light m-1"
@@ -23,46 +23,99 @@
           >
             New Product
           </button>
+
+          <button
+            v-if="selectedProducts.length > 0"
+            class="btn btn-dark m-1"
+            type="button"
+            @click="createPackageModal"
+          >
+            Add To Package
+          </button>
         </div>
 
-        <div class="col-sm-12 col-md-7">
+        <div class="col-sm-12 col-md-6">
           <table class="table table-hover">
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Product</th>
                 <th scope="col">Weight</th>
-                <th scope="col">QR</th>
                 <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in products" :key="index">
-                <th scope="row">{{ index + 1 }}</th>
+                <th scope="row">
+                  <input
+                    type="checkbox"
+                    v-bind:value="item.id"
+                    v-model="selectedProducts"
+                  />
+                </th>
                 <td>{{ item.product_name }}</td>
                 <td>{{ item.product_weight }}</td>
                 <td>
                   <img
-                    class="qrCodeBtn"
+                    class="qrCodeBtn m-1"
                     src="@/assets/images/icons/qr-code.png"
                     alt="QR Code"
                     @click="generateProductQR(item.id)"
                   />
-                </td>
-                <td>
                   <button
                     type="button"
-                    class="btn btn-link"
+                    class="m-1 btn btn-sm btn-outline-info"
                     @click="openModalProduct(item, index)"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
-                    class="btn btn-danger"
+                    class="m-1 btn btn-sm btn-outline-danger"
                     @click="deleteProduct(item.id, index)"
                   >
-                    Delete
+                    <span class="deleteText">x</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Package</th>
+                <th scope="col">Prods</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in packs" :key="index">
+                <th scope="row">{{ index + 1 }}</th>
+                <td>{{ item.pack_name }}</td>
+                <td>{{ item.prod_num }}</td>
+                <td>
+                  <img
+                    class="qrCodeBtn m-1"
+                    src="@/assets/images/icons/qr-code.png"
+                    alt="QR Code"
+                    @click="generatePackQR(item.id)"
+                  />
+                  <button
+                    type="button"
+                    class="m-1 btn btn-sm btn-outline-info"
+                    @click="openModalPackContent(item, index)"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="m-1 btn btn-sm btn-outline-danger"
+                    @click="deletePack(item.id, index)"
+                  >
+                    <span class="deleteText">x</span>
                   </button>
                 </td>
               </tr>
@@ -161,6 +214,159 @@
           </div>
         </div>
       </div>
+
+      <div
+        class="modal fade"
+        id="packageForm"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="packageFormModal"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Manage Package</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <label class="col-form-label"
+                  >You have selected <b>{{ selectedProducts.length }}</b> product(s). Please enter
+                  the name of the new package or select an existing one</label
+                >
+                <div class="form-group" v-if="choosePack">
+                  <label for="pack_id">Choose Package:</label>
+                  <select
+                    class="form-control col-md-7 col-sm-7"
+                    id="pack_id"
+                    v-model="pack.pack_id"
+                    @change="showCreatePack"
+                  >
+                    <option
+                      v-for="(item, index) in selectPacks"
+                      :key="index"
+                      v-bind:value="item.id"
+                    >
+                      {{ item.pack_name }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group" v-else>
+                  <label for="pack_name">New Package:</label>
+                  <div class="row m-0">
+                    <div class="col-md-7 col-sm-7 p-0">
+                      <input
+                        type="text"
+                        v-model="pack.pack_name"
+                        id="pack_name"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                      <button type="button" @click="cancelNewPack" class="btn btn-light">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Close
+              </button>
+              <button type="button" class="btn btn-primary" @click="savePackage">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal fade"
+        id="packageFormContent"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="packageFormContentModal"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Package Content</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <div class="form-group">
+                  <label for="pack_name">Package Name:</label>
+                  <div class="row m-0">
+                    <div class="col-md-7 col-sm-7 p-0">
+                      <input
+                        type="text"
+                        v-model="currentPack.pack_name"
+                        id="pack_name"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        @click="updatePackName"
+                      >
+                        Update
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Product</th>
+                      <th scope="col">Weight</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, index) in packProducts" :key="index">
+                      <th scope="row">{{ index + 1 }}</th>
+                      <td>{{ item.product_name }}</td>
+                      <td>{{ item.product_weight }}</td>
+                      <td>
+                        <img
+                          class="qrCodeBtn m-1"
+                          src="@/assets/images/icons/qr-code.png"
+                          alt="QR Code"
+                          @click="generateProductQR(item.id)"
+                        />
+                        <button
+                          type="button"
+                          class="m-1 btn btn-sm btn-outline-danger"
+                          @click="removeProductFromPack(item.id, index)"
+                        >
+                          <span class="deleteText">x</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- end modals -->
       <!-- qr window start -->
       <div class="qrArea">
@@ -204,22 +410,202 @@ export default {
         product_weight: null,
         setFieldAsCompleted: false,
       },
+      selectedProducts: [],
       fields: [],
       products: [],
+      choosePack: true,
+      selectPacks: [],
+      packs: [],
+      pack: {
+        pack_id: null,
+        pack_name: null,
+      },
+      packProducts: [],
+      currentPack: {
+        id: null,
+        pack_name: null,
+      },
     };
   },
   methods: {
+    openModalPackContent(item, index) {
+      this.currentPack.id = item.id;
+      this.currentPack.pack_name = item.pack_name;
+      this.index = index;
+
+      let obj = {
+        user_id: this.user.id,
+        pack_id: this.currentPack.id,
+      };
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/products", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.packProducts = result.data;
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+      $("#packageFormContent").modal("show");
+    },
+    updatePackName() {
+      if (!this.currentPack.pack_name || this.currentPack.pack_name.length == 0) {
+        helper.showWarning("Please enter Package name.");
+        return;
+      }
+
+      let obj = {
+        user_id: this.user.id,
+        id: this.currentPack.id,
+        pack_name: this.currentPack.pack_name,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/update", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.packs[this.index].pack_name = obj.pack_name;
+            this.setPacks(this.packs);
+            helper.showSuccess(result.message);
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    createPackageModal() {
+      $("#packageForm").modal("show");
+    },
+    showCreatePack() {
+      if (this.pack.pack_id == null || this.pack.pack_id != "new") {
+        this.choosePack = true;
+        this.pack.pack_name = null;
+      } else {
+        this.choosePack = false;
+      }
+    },
+    cancelNewPack() {
+      this.pack.pack_id = null;
+      this.pack.pack_name = null;
+      this.choosePack = true;
+    },
+    savePackage() {
+      if (this.pack.pack_id == null) {
+        helper.showWarning("Please choose a Package.");
+        return;
+      }
+
+      if (
+        this.pack.pack_id == "new" &&
+        (!this.pack.pack_name || this.pack.pack_name.length == 0)
+      ) {
+        helper.showWarning("Please enter Package name.");
+        return;
+      }
+      let obj = {
+        user_id: this.user.id,
+        products: this.selectedProducts,
+      };
+      let urlPart = null;
+      if (this.choosePack) {
+        obj.id = this.pack.pack_id;
+        urlPart = "add-products";
+      } else {
+        obj.pack_name = this.pack.pack_name;
+        urlPart = "add-pack-and-prods";
+      }
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post(`packaging/packs/${urlPart}`, obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            if (this.choosePack) {
+              this.packs.map((element) => {
+                if (element.id == this.pack.pack_id) {
+                  element.prod_num += this.selectedProducts.length;
+                }
+                return element;
+              });
+            } else {
+              this.packs.push(result.data);
+              this.selectPacks.push(result.data);
+            }
+            /** get new list of products */
+            this.getProducts();
+            /** reset values */
+            this.selectedProducts = [];
+            this.cancelNewPack();
+
+            $("#packageForm").modal("hide");
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    getPackages() {
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/all-new", { user_id: this.user.id })
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.setPacks(result.data);
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    setPacks(newPacks) {
+      let defaultSelectPacks = [
+        {
+          id: null,
+          pack_name: null,
+        },
+        {
+          id: "new",
+          pack_name: "New package",
+        },
+      ];
+      this.selectPacks = defaultSelectPacks.concat(newPacks);
+      this.packs = newPacks;
+    },
+    generatePackQR(data) {
+      let qrText = helper.prepareQR(`package-${data}`);
+      this.showQRCode(qrText);
+    },
     generateProductQR(data) {
-      let qrText = `product-${data}`;
+      let qrText = helper.prepareQR(`product-${data}`);
       this.showQRCode(qrText);
     },
     showQRCode(text) {
-      $(".qrArea").css("display", "flex");
+      $(".qrArea").fadeIn().css("display", "flex");
       let canvas = document.getElementById("qr-aread");
       QRCode.toCanvas(canvas, text, () => {});
     },
     printQr() {
-      $(".qrArea").css("display", "none");
+      $(".qrArea").fadeOut();
     },
     openModalProduct(data, index) {
       if (data === false) {
@@ -301,8 +687,71 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
+    removeProductFromPack(id, index) {
+      if(this.packProducts.length == 1){
+        alert("To remove the last product please delete the package.");
+        return;
+      }
+      if (!confirm("Remove product from package?")) {
+        return;
+      }
+
+      let obj = {
+        id: id,
+        user_id: this.user.id,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/remove-product", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            let prod = this.packProducts[index];
+            this.products.push(prod);
+            this.packProducts.splice(index, 1);
+            this.packs[this.index].prod_num -= 1;
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    deletePack(id, index) {
+      if (!confirm("Delete package?")) {
+        return;
+      }
+
+      let obj = {
+        id: id,
+        user_id: this.user.id,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/delete", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            helper.showSuccess(result.message);
+            this.packs.splice(index, 1);
+            this.setPacks(this.packs);
+            this.getProducts();
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
     deleteProduct(id, index) {
-      if (!confirm("Are you sure?")) {
+      if (!confirm("Delete product?")) {
         return;
       }
 
@@ -365,6 +814,7 @@ export default {
   mounted() {
     this.getProducts();
     this.getFields();
+    this.getPackages();
   },
 };
 </script>

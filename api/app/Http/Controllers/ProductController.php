@@ -130,10 +130,7 @@ class ProductController extends Controller
         }
 
         $products = Product::where('user_id', $data['user_id'])
-            ->where(
-                'category_id',
-                isset($data['category_id']) && is_numeric($data['category_id']) ? $data['category_id'] : 0
-            )
+            ->where('pack_id',  0)
             ->get();
 
         return response()->json([

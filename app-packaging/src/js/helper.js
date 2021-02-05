@@ -4,6 +4,9 @@ import Vue from "vue";
 let numOfLoadingScreens = 0;
 
 let helper = {
+    prepareQR(identifier){
+        return `qr/${identifier}`;
+    },
     toggleLoadingScreen(showOrHide) {
         if (showOrHide) {
             /** increment number of loading screens request */

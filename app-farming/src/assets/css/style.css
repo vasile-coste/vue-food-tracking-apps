@@ -4,6 +4,11 @@
     outline: none;
 }
 
+.deleteText {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
 /** Menu */
 
 .mainNavBar {

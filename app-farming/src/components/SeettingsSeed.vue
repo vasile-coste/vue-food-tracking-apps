@@ -36,7 +36,7 @@
                 <td>
                   <button
                     type="button"
-                    class="btn btn-link"
+                    class="m-1 btn btn-sm btn-outline-info"
                     @click="openModalSeed(item, index)"
                   >
                     Edit
@@ -66,17 +66,17 @@
                 <td>
                   <button
                     type="button"
-                    class="btn btn-link"
+                    class="m-1 btn btn-sm btn-outline-info"
                     @click="openModalSeedCompany(item, index)"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
-                    class="btn btn-danger"
+                    class="m-1 btn btn-sm btn-outline-danger"
                     @click="deleteSeedCompany(item.id, index)"
                   >
-                    Delete
+                    <span class="deleteText">x</span>
                   </button>
                 </td>
               </tr>

@@ -7,8 +7,7 @@
 - `php artisan migrate` run all migration files
 - `php artisan make:migration <tableName>` - then update the file from database/migrations to add columns
 - `php artisan make:controller <controllerName>` - create controller
-- `php artisan make:model <modelName>` - create model
-- `php artisan make:model <modelName> --migration` -  or `-m` it will create a model and a migration table
+- `php artisan make:model <modelName>` create a model, adding `--migration` -  or `-m` it will also create migration table
 
 # VueJs (v2)
 ## Prepare env

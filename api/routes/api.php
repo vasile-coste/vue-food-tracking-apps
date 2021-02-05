@@ -9,6 +9,7 @@ use App\Http\Controllers\HarvestingController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\MapSettingsController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,5 +107,16 @@ Route::group(['prefix' => 'packaging'], function () {
         Route::post('/delete', [ProductController::class, 'deleteProduct']);
         Route::post('/all', [ProductController::class, 'getProducts']);
         Route::get('/fields', [ProductController::class, 'getFields']);
+    });
+    /** Packs */
+    Route::group(['prefix' => 'packs'], function () {
+        Route::post('/all-new', [PackController::class, 'getNewPackages']);
+        Route::post('/all', [PackController::class, 'getAllPackages']);
+        Route::post('/products', [PackController::class, 'getProducts']);
+        Route::post('/add-pack-and-prods', [PackController::class, 'addPackage']); 
+        Route::post('/update', [PackController::class, 'updatePackage']); 
+        Route::post('/delete', [PackController::class, 'deletePackage']);
+        Route::post('/add-products', [PackController::class, 'addProducts']); 
+        Route::post('/remove-product', [PackController::class, 'removeProduct']); 
     });
 });
