@@ -288,7 +288,7 @@ export default {
       };
 
       let action = null;
-      if (this.productForm.add) {
+      if (this.transportForm.add) {
         action = "add-transport-and-packs";
         obj.packs = this.selectedPacks;
       } else {
@@ -302,8 +302,10 @@ export default {
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            if (this.productForm.add) {
+            if (this.transportForm.add) {
               this.transports.push(result.data);
+              this.getPackages();
+              $("#transportForm").modal("hide");
             } else {
               this.transports[this.index] = result.data;
             }
@@ -362,6 +364,7 @@ export default {
         });
     },
     getPackages() {
+      this.selectedPacks = [];
       helper.toggleLoadingScreen(true);
       this.$axios
         .post("packaging/packs/all-new", { user_id: this.user.id })
