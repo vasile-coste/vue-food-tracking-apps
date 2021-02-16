@@ -73,8 +73,8 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="container-fluid">
+          <div class="modal-body" id="loadMoreOnScroll">
+            <div class="container-fluid" id="loadMoreOnScrollResult">
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -85,7 +85,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in packProducts" :key="index">
+                  <tr v-for="(item, index) in packProducts.items" :key="index">
                     <th scope="row">{{ index + 1 }}</th>
                     <td>{{ item.product_name }}</td>
                     <td>{{ item.product_weight }}</td>
@@ -137,14 +137,20 @@ export default {
     return {
       user: this.$session.get("user"),
       packs: [],
-      packProducts: [],
+      packProducts: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
       pack_name: null,
+      pack_id: null,
       total: 0,
       lastPage: 0,
       currentPage: 0,
       packs_new: 0,
       packs_done: 0,
-      persons: [],
+      onScrollRunning: false,
     };
   },
   methods: {
@@ -152,25 +158,8 @@ export default {
       event.preventDefault();
 
       this.pack_name = name;
-      let obj = {
-        user_id: this.user.id,
-        pack_id: id,
-      };
-      helper.toggleLoadingScreen(true);
-      this.$axios
-        .post("packaging/packs/products", obj)
-        .then((res) => {
-          let result = JSON.parse(res.request.response);
-          if (result.success) {
-            this.packProducts = result.data;
-          } else {
-            helper.showWarning(result.message);
-          }
-          helper.toggleLoadingScreen(false);
-        })
-        .catch(() => {
-          helper.toggleLoadingScreen(false);
-        });
+      this.pack_id = id;
+      this.getPackProducts(true);
       $("#packageFormContent").modal("show");
     },
     generatePackQR(data) {
@@ -228,6 +217,49 @@ export default {
           }
         });
     },
+    getPackProducts(reload = false) {
+      if (reload == false) {
+        if (
+          this.packProducts.currentPage > 0 &&
+          this.packProducts.lastPage == this.packProducts.currentPage
+        ) {
+          return;
+        }
+      }
+
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.products.currentPage,
+        pack_id: this.pack_id,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/product/all", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            if (reload) {
+              this.packProducts = result.data;
+            } else {
+              this.packProducts = {
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.packProducts.items.concat(result.data.items),
+              };
+            }
+          } else {
+            helper.showWarning(result.message);
+          }
+
+          helper.toggleLoadingScreen(false);
+          this.onScrollRunning = false;
+        })
+        .catch(() => {
+          this.onScrollRunning = false;
+          helper.toggleLoadingScreen(false);
+        });
+    },
   },
   mounted() {
     this.getPacks();
@@ -240,6 +272,19 @@ export default {
         this.getPacks();
       }
     };
+    
+    /** load more data on modal */
+    document.getElementById("loadMoreOnScroll").addEventListener("scroll", () => {
+      if (
+        !this.onScrollRunning &&
+        document.getElementById("loadMoreOnScroll").offsetHeight +
+          document.getElementById("loadMoreOnScroll").scrollTop >=
+          document.getElementById("loadMoreOnScrollResult").offsetHeight
+      ) {
+        this.onScrollRunning = true;
+        this.getPackProducts();
+      }
+    });
   },
 };
 </script>

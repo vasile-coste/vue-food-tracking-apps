@@ -45,7 +45,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in products" :key="index">
+              <tr v-for="(item, index) in products.items" :key="index">
                 <th scope="row">
                   <input
                     type="checkbox"
@@ -92,7 +92,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in packs" :key="index">
+              <tr v-for="(item, index) in packs.items" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ item.pack_name }}</td>
                 <td>{{ item.prod_num }}</td>
@@ -233,10 +233,10 @@
             </div>
             <div class="modal-body">
               <div class="container-fluid">
-                <label class="col-form-label"
-                  >You have selected <b>{{ selectedProducts.length }}</b> product(s). Please enter
-                  the name of the new package or select an existing one</label
-                >
+                <label class="col-form-label">
+                  You have selected <b>{{ selectedProducts.length }}</b> product(s).
+                  Please enter the name of the new package or select an existing one
+                </label>
                 <div class="form-group" v-if="choosePack">
                   <label for="pack_id">Choose Package:</label>
                   <select
@@ -301,8 +301,8 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
-              <div class="container-fluid">
+            <div class="modal-body" id="loadMoreOnScroll">
+              <div class="container-fluid" id="loadMoreOnScrollResult">
                 <div class="form-group">
                   <label for="pack_name">Package Name:</label>
                   <div class="row m-0">
@@ -335,7 +335,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(item, index) in packProducts" :key="index">
+                    <tr v-for="(item, index) in packProducts.items" :key="index">
                       <th scope="row">{{ index + 1 }}</th>
                       <td>{{ item.product_name }}</td>
                       <td>{{ item.product_weight }}</td>
@@ -412,19 +412,35 @@ export default {
       },
       selectedProducts: [],
       fields: [],
-      products: [],
+      products: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
       choosePack: true,
       selectPacks: [],
-      packs: [],
+      packs: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
       pack: {
         pack_id: null,
         pack_name: null,
       },
-      packProducts: [],
+      packProducts: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
       currentPack: {
         id: null,
         pack_name: null,
       },
+      onScrollRunning: false,
     };
   },
   methods: {
@@ -432,27 +448,51 @@ export default {
       this.currentPack.id = item.id;
       this.currentPack.pack_name = item.pack_name;
       this.index = index;
+      this.getPackProducts(true);
+      $("#packageFormContent").modal("show");
+    },
+    getPackProducts(reload = false) {
+      if (reload == false) {
+        if (
+          this.packProducts.currentPage > 0 &&
+          this.packProducts.lastPage == this.packProducts.currentPage
+        ) {
+          return;
+        }
+      }
 
       let obj = {
         user_id: this.user.id,
+        page: reload ? 1 : ++this.products.currentPage,
         pack_id: this.currentPack.id,
       };
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("packaging/packs/products", obj)
+        .post("packaging/product/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.packProducts = result.data;
+            if (reload) {
+              this.packProducts = result.data;
+            } else {
+              this.packProducts = {
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.packProducts.items.concat(result.data.items),
+              };
+            }
           } else {
             helper.showWarning(result.message);
           }
+
           helper.toggleLoadingScreen(false);
+          this.onScrollRunning = false;
         })
         .catch(() => {
+          this.onScrollRunning = false;
           helper.toggleLoadingScreen(false);
         });
-      $("#packageFormContent").modal("show");
     },
     updatePackName() {
       if (!this.currentPack.pack_name || this.currentPack.pack_name.length == 0) {
@@ -472,8 +512,8 @@ export default {
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.packs[this.index].pack_name = obj.pack_name;
-            this.setPacks(this.packs);
+            this.packs.items[this.index].pack_name = obj.pack_name;
+            this.setPacks(this.packs, true);
             helper.showSuccess(result.message);
           } else {
             helper.showWarning(result.message);
@@ -493,6 +533,8 @@ export default {
         this.pack.pack_name = null;
       } else {
         this.choosePack = false;
+        let count = this.packs.total + 1;
+        this.pack.pack_name = `Pack ${count}`;
       }
     },
     cancelNewPack() {
@@ -534,18 +576,19 @@ export default {
           if (result.success) {
             helper.showSuccess(result.message);
             if (this.choosePack) {
-              this.packs.map((element) => {
+              /** update pack if is in view */
+              this.packs.items.map((element) => {
                 if (element.id == this.pack.pack_id) {
                   element.prod_num += this.selectedProducts.length;
                 }
                 return element;
               });
             } else {
-              this.packs.push(result.data);
-              this.selectPacks.push(result.data);
+              /** get new list of packs */
+              this.getPackages(true);
             }
             /** get new list of products */
-            this.getProducts();
+            this.getProducts(true);
             /** reset values */
             this.selectedProducts = [];
             this.cancelNewPack();
@@ -560,14 +603,25 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
-    getPackages() {
+    getPackages(reload = false) {
+      if (reload == false) {
+        if (this.packs.currentPage > 0 && this.packs.lastPage == this.packs.currentPage) {
+          return;
+        }
+      }
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.packs.currentPage,
+        transport_id: 0,
+      };
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("packaging/packs/all-new", { user_id: this.user.id })
+        .post("packaging/packs/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.setPacks(result.data);
+            this.setPacks(result.data, reload);
           } else {
             helper.showWarning(result.message);
           }
@@ -577,7 +631,7 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
-    setPacks(newPacks) {
+    setPacks(newPacks, reload) {
       let defaultSelectPacks = [
         {
           id: null,
@@ -588,8 +642,21 @@ export default {
           pack_name: "New package",
         },
       ];
-      this.selectPacks = defaultSelectPacks.concat(newPacks);
-      this.packs = newPacks;
+      if (reload) {
+        this.selectPacks = defaultSelectPacks.concat(newPacks.items);
+        this.packs = newPacks;
+      } else {
+        this.selectPacks = (this.selectPacks.length > 0
+          ? this.selectPacks
+          : defaultSelectPacks
+        ).concat(newPacks.items);
+        this.packs = {
+          total: newPacks.total,
+          lastPage: newPacks.lastPage,
+          currentPage: newPacks.currentPage,
+          items: this.packs.items.concat(newPacks.items),
+        };
+      }
     },
     generatePackQR(data) {
       let qrText = helper.prepareQR(`package-${data}`);
@@ -672,10 +739,10 @@ export default {
           if (result.success) {
             helper.showSuccess(result.message);
             if (this.productForm.add) {
-              this.products.push(result.data);
+              this.getProducts(true);
             } else {
-              this.products[this.index].product_name = result.data.product_name;
-              this.products[this.index].product_weight = result.data.product_weight;
+              this.products.items[this.index].product_name = result.data.product_name;
+              this.products.items[this.index].product_weight = result.data.product_weight;
               $("#productForm").modal("hide");
             }
           } else {
@@ -688,7 +755,7 @@ export default {
         });
     },
     removeProductFromPack(id, index) {
-      if(this.packProducts.length == 1){
+      if (this.packProducts.length == 1) {
         alert("To remove the last product please delete the package.");
         return;
       }
@@ -708,10 +775,9 @@ export default {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             helper.showSuccess(result.message);
-            let prod = this.packProducts[index];
-            this.products.push(prod);
-            this.packProducts.splice(index, 1);
-            this.packs[this.index].prod_num -= 1;
+            this.getProducts(true);
+            this.packProducts.items.splice(index, 1);
+            this.packs.items[this.index].prod_num -= 1;
           } else {
             helper.showWarning(result.message);
           }
@@ -738,9 +804,9 @@ export default {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             helper.showSuccess(result.message);
-            this.packs.splice(index, 1);
-            this.setPacks(this.packs);
-            this.getProducts();
+            this.packs.items.splice(index, 1);
+            this.setPacks(this.packs, true);
+            this.getProducts(true);
           } else {
             helper.showWarning(result.message);
           }
@@ -766,7 +832,7 @@ export default {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             helper.showSuccess(result.message);
-            this.products.splice(index, 1);
+            this.products.items.splice(index, 1);
           } else {
             helper.showWarning(result.message);
           }
@@ -776,14 +842,40 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
-    getProducts() {
+    getProducts(reload = false) {
+      if (reload == false) {
+        if (
+          this.products.currentPage > 0 &&
+          this.products.lastPage == this.products.currentPage
+        ) {
+          return;
+        }
+      } else {
+        /** reload selected products */
+        this.selectedProducts = [];
+      }
+
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.products.currentPage,
+      };
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("packaging/product/all", { user_id: this.user.id })
+        .post("packaging/product/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.products = result.data;
+            if (reload) {
+              this.products = result.data;
+            } else {
+              this.products = {
+                total: result.data.total,
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.products.items.concat(result.data.items),
+              };
+            }
           } else {
             helper.showWarning(result.message);
           }
@@ -812,9 +904,32 @@ export default {
     },
   },
   mounted() {
-    this.getProducts();
     this.getFields();
+    this.getProducts();
     this.getPackages();
+
+    window.onscroll = () => {
+      let fullHeight = document.documentElement.offsetHeight;
+      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight;
+
+      if (bottomOfWindow >= fullHeight) {
+        this.getProducts();
+        this.getPackages();
+      }
+    };
+
+    /** load more data on modal */
+    document.getElementById("loadMoreOnScroll").addEventListener("scroll", () => {
+      if (
+        !this.onScrollRunning &&
+        document.getElementById("loadMoreOnScroll").offsetHeight +
+          document.getElementById("loadMoreOnScroll").scrollTop >=
+          document.getElementById("loadMoreOnScrollResult").offsetHeight
+      ) {
+        this.onScrollRunning = true;
+        this.getPackProducts();
+      }
+    });
   },
 };
 </script>

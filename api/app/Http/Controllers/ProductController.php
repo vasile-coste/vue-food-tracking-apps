@@ -117,7 +117,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /** Get all products */
+    /** Get all products, can also get all products by pack_id*/
     public function getProducts(Request $request)
     {
         $data = $request->toArray();
@@ -129,13 +129,22 @@ class ProductController extends Controller
             ]);
         }
 
-        $products = Product::where('user_id', $data['user_id'])
-            ->where('pack_id',  0)
-            ->get();
+        $ipp = isset($data['ipp']) ? $data['ipp'] : 20;
+        $page = $data['page'];
+
+        $products = Product::where('pack_id',  isset($data['pack_id']) && $data['pack_id'] != "" ? $data['pack_id'] : 0)
+            ->paginate($ipp, ['*'], 'page', $page);
+
+        $data = [
+            'total' => $products->total(),
+            'lastPage' => $products->lastPage(),
+            'currentPage' => $products->currentPage(),
+            'items' => $products->items()
+        ];
 
         return response()->json([
             "success" => true,
-            "data" => $products->all()
+            "data" => $data
         ]);
     }
 

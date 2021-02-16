@@ -36,7 +36,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in packs" :key="index">
+              <tr v-for="(item, index) in packs.items" :key="index">
                 <th scope="row">
                   <input type="checkbox" v-bind:value="item.id" v-model="selectedPacks" />
                 </th>
@@ -69,7 +69,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in transports" :key="index">
+              <tr v-for="(item, index) in transports.items" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ item.invoice }}</td>
                 <td>{{ item.pack_num }}</td>
@@ -123,9 +123,9 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="container-fluid">
-              <label class="col-form-label">
+          <div class="modal-body" id="loadMoreOnScroll">
+            <div class="container-fluid" id="loadMoreOnScrollResult">
+              <label class="col-form-label" v-if="transportForm.add">
                 You have selected <b>{{ selectedPacks.length }}</b> package(s).
               </label>
               <div class="row">
@@ -174,6 +174,38 @@
                     class="form-control"
                   />
                 </div>
+                <div v-if="!transportForm.add" class="form-group col-md-6 col-sm-12">
+                  <button type="button" class="btn btn-primary" @click="saveTransport">
+                    Update
+                  </button>
+                </div>
+              </div>
+              <div class="row" v-if="!transportForm.add">
+                <table class="col-sm-12 col-md-12 table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Package</th>
+                      <th scope="col">Prods</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, index) in transportPacks.items" :key="index">
+                      <th scope="row">{{ index + 1 }}</th>
+                      <td>{{ item.pack_name }}</td>
+                      <td>{{ item.prod_num }}</td>
+                      <td>
+                        <img
+                          class="qrCodeBtn m-1"
+                          src="@/assets/images/icons/qr-code.png"
+                          alt="QR Code"
+                          @click="generatePackQR(item.id)"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -181,7 +213,12 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button type="button" class="btn btn-primary" @click="saveTransport">
+            <button
+              v-if="transportForm.add"
+              type="button"
+              class="btn btn-primary"
+              @click="saveTransport"
+            >
               Save
             </button>
           </div>
@@ -219,8 +256,18 @@ export default {
         title: null,
         add: null,
       },
-      packs: [],
-      transports: [],
+      packs: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
+      transports: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
       selectedPacks: [],
       transport: {
         invoice: null,
@@ -229,6 +276,13 @@ export default {
         ship_company: null,
         market: null,
       },
+      transportPacks: {
+        total: 0,
+        lastPage: 0,
+        currentPage: 0,
+        items: [],
+      },
+      onScrollRunning: false,
     };
   },
   methods: {
@@ -250,36 +304,12 @@ export default {
         this.transportForm.title = "Manage Transport";
         this.transportForm.add = false;
         this.transport = data;
+        this.getPackagesInTransport(true);
       }
       $("#transportForm").modal("show");
     },
     saveTransport() {
       let err = false;
-      if (this.transport.invoice == null) {
-        helper.showWarning("Please enter invoice.");
-        err = true;
-      }
-      if (this.transport.ship_from == null) {
-        helper.showWarning("Please enter Ship From.");
-        err = true;
-      }
-      if (this.transport.ship_to == null) {
-        helper.showWarning("Please enter Ship To.");
-        err = true;
-      }
-      if (this.transport.ship_company == null) {
-        helper.showWarning("Please enter Ship Company.");
-        err = true;
-      }
-      if (this.transport.market == null) {
-        helper.showWarning("Please enter Market.");
-        err = true;
-      }
-
-      if (err) {
-        return;
-      }
-
       let obj = {
         invoice: this.transport.invoice,
         ship_from: this.transport.ship_from,
@@ -288,6 +318,31 @@ export default {
         market: this.transport.market,
         user_id: this.user.id,
       };
+
+      if (obj.invoice == null) {
+        helper.showWarning("Please enter invoice.");
+        err = true;
+      }
+      if (obj.ship_from == null) {
+        helper.showWarning("Please enter Ship From.");
+        err = true;
+      }
+      if (obj.ship_to == null) {
+        helper.showWarning("Please enter Ship To.");
+        err = true;
+      }
+      if (obj.ship_company == null) {
+        helper.showWarning("Please enter Ship Company.");
+        err = true;
+      }
+      if (obj.market == null) {
+        helper.showWarning("Please enter Market.");
+        err = true;
+      }
+
+      if (err) {
+        return;
+      }
 
       let action = null;
       if (this.transportForm.add) {
@@ -305,12 +360,13 @@ export default {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             if (this.transportForm.add) {
-              this.transports.push(result.data);
-              this.getPackages();
+              this.getTransports(true);
+              this.getPackages(true);
               $("#transportForm").modal("hide");
             } else {
-              this.transports[this.index] = result.data;
+              this.transports.items[this.index] = result.data;
             }
+            helper.showSuccess(result.message);
           } else {
             helper.showWarning(result.message);
           }
@@ -337,8 +393,8 @@ export default {
           let result = JSON.parse(res.request.response);
           if (result.success) {
             helper.showSuccess(result.message);
-            this.transports.splice(index, 1);
-            this.getPackages();
+            this.transports.items.splice(index, 1);
+            this.getPackages(true);
           } else {
             helper.showWarning(result.message);
           }
@@ -348,14 +404,37 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
-    getTransports() {
+    getTransports(reload = false) {
+      if (reload == false) {
+        if (
+          this.transports.currentPage > 0 &&
+          this.transports.lastPage == this.transports.currentPage
+        ) {
+          return;
+        }
+      }
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.transports.currentPage,
+        status: "created",
+      };
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("packaging/ship/all-new", { user_id: this.user.id })
+        .post("packaging/ship/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.transports = result.data;
+            if (reload) {
+              this.transports = result.data;
+            } else {
+              this.transports = {
+                total: result.data.total,
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.transports.items.concat(result.data.items),
+              };
+            }
           } else {
             helper.showWarning(result.message);
           }
@@ -365,15 +444,75 @@ export default {
           helper.toggleLoadingScreen(false);
         });
     },
-    getPackages() {
+    getPackages(reload = false) {
       this.selectedPacks = [];
+      if (reload == false) {
+        if (this.packs.currentPage > 0 && this.packs.lastPage == this.packs.currentPage) {
+          return;
+        }
+      }
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.packs.currentPage,
+        transport_id: 0,
+      };
+
       helper.toggleLoadingScreen(true);
       this.$axios
-        .post("packaging/packs/all-new", { user_id: this.user.id })
+        .post("packaging/packs/all", obj)
         .then((res) => {
           let result = JSON.parse(res.request.response);
           if (result.success) {
-            this.packs = result.data;
+            if (reload) {
+              this.packs = result.data;
+            } else {
+              this.packs = {
+                total: result.data.total,
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.packs.items.concat(result.data.items),
+              };
+            }
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
+    getPackagesInTransport(reload = false) {
+      if (reload == false) {
+        if (
+          this.transportPacks.currentPage > 0 &&
+          this.transportPacks.lastPage == this.transportPacks.currentPage
+        ) {
+          return;
+        }
+      }
+      let obj = {
+        user_id: this.user.id,
+        page: reload ? 1 : ++this.transportPacks.currentPage,
+        transport_id: this.transport.id,
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/packs/all", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            if (reload) {
+              this.transportPacks = result.data;
+            } else {
+              this.transportPacks = {
+                total: result.data.total,
+                lastPage: result.data.lastPage,
+                currentPage: result.data.currentPage,
+                items: this.transportPacks.items.concat(result.data.items),
+              };
+            }
           } else {
             helper.showWarning(result.message);
           }
@@ -403,6 +542,19 @@ export default {
   mounted() {
     this.getPackages();
     this.getTransports();
+
+    /** load more data on modal */
+    document.getElementById("loadMoreOnScroll").addEventListener("scroll", () => {
+      if (
+        !this.onScrollRunning &&
+        document.getElementById("loadMoreOnScroll").offsetHeight +
+          document.getElementById("loadMoreOnScroll").scrollTop >=
+          document.getElementById("loadMoreOnScrollResult").offsetHeight
+      ) {
+        this.onScrollRunning = true;
+        this.getPackagesInTransport();
+      }
+    });
   },
 };
 </script>

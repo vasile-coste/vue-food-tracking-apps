@@ -3,41 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Packs;
+use App\Models\Product;
 use App\Models\Transport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TransportController extends Controller
 {
-    /** get transport list and packs number by current user that are not in started */
-    public function getNewTransports(Request $request)
-    {
-        $data = $request->toArray();
-
-        if (!isset($data['user_id']) || $data['user_id'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
-
-        $shipTable = app(Transport::class)->getTable();
-        $packsTable = app(Packs::class)->getTable();
-        $shipment = DB::table($shipTable)
-            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
-            ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
-            ->where($shipTable . '.user_id', $data['user_id'])
-            ->where($shipTable . '.status', 'created')
-            ->orderBy($shipTable . '.invoice')
-            ->groupBy($packsTable . '.transport_id')
-            ->get();
-
-        return response()->json([
-            "success" => true,
-            "data" => $shipment->all()
-        ]);
-    }
-
     /** get transport lits with pagination and total shipment by status */
     public function getAllTransports(Request $request)
     {
@@ -64,8 +36,12 @@ class TransportController extends Controller
         $packsTable = app(Packs::class)->getTable();
         $shipment = DB::table($shipTable)
             ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
-            ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
-            ->orderBy($shipTable . '.invoice')
+            ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id');
+        if (isset($data['status'])) {
+            $shipment = $shipment->where($shipTable . '.status', $data['status']);
+        }
+
+        $shipment = $shipment->orderBy($shipTable . '.invoice')
             ->groupBy($packsTable . '.transport_id')
             ->paginate($ipp, ['*'], 'page', $page);
 
@@ -211,6 +187,7 @@ class TransportController extends Controller
         ]);
     }
 
+    /** delet transport and update packs to no trasport */
     public function deleteTransport(Request $request)
     {
         $data = $request->toArray();
@@ -222,7 +199,7 @@ class TransportController extends Controller
             ]);
         }
 
-        // make products available for other package
+        // make packs available for other package
         Packs::where('transport_id', $data['id'])
             ->update(['transport_id' => 0]);
 

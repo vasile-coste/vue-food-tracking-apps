@@ -9,36 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class PackController extends Controller
 {
-    /** get list of Packs and product number by current user that are not in transport */
-    public function getNewPackages(Request $request)
-    {
-        $data = $request->toArray();
-
-        if (!isset($data['user_id']) || $data['user_id'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
-
-        $packTable = app(Packs::class)->getTable();
-        $prodTable = app(Product::class)->getTable();
-        $packs = DB::table($packTable)
-            ->select($packTable . '.*', DB::raw('COUNT(`' . $prodTable . '`.`pack_id`) as `prod_num`'))
-            ->join($prodTable, $prodTable . '.pack_id', '=', $packTable . '.id')
-            ->where($packTable . '.user_id', $data['user_id'])
-            ->where($packTable . '.transport_id', 0)
-            ->orderBy($packTable . '.pack_name')
-            ->groupBy($prodTable . '.pack_id')
-            ->get();
-
-        return response()->json([
-            "success" => true,
-            "data" => $packs->all()
-        ]);
-    }
-
-    /** get pack lits with pagination and total num of new and shipped packs */
+    /** get pack list with pagination and total num of new and shipped packs */
     public function getAllPackages(Request $request)
     {
         $data = $request->toArray();
@@ -64,8 +35,11 @@ class PackController extends Controller
         $prodTable = app(Product::class)->getTable();
         $packs = DB::table($packTable)
             ->select($packTable . '.*', DB::raw('COUNT(`' . $prodTable . '`.`pack_id`) as `prod_num`'))
-            ->join($prodTable, $prodTable . '.pack_id', '=', $packTable . '.id')
-            ->orderBy($packTable . '.id', 'DESC')
+            ->join($prodTable, $prodTable . '.pack_id', '=', $packTable . '.id');
+        if(isset($data['transport_id']) && is_numeric($data['transport_id'])){
+            $packs = $packs->where($packTable . '.transport_id', $data['transport_id']);
+        }
+        $packs = $packs->orderBy($packTable . '.id', 'DESC')
             ->groupBy($prodTable . '.pack_id')
             ->paginate($ipp, ['*'], 'page', $page);
 
@@ -82,26 +56,6 @@ class PackController extends Controller
         return response()->json([
             "success" => true,
             "data" => $data
-        ]);
-    }
-
-    /** get a list of products for current package id */
-    public function getProducts(Request $request)
-    {
-        $data = $request->toArray();
-
-        if (!isset($data['user_id']) || $data['user_id'] == "" || !isset($data['pack_id']) || $data['pack_id'] == "") {
-            return response()->json([
-                "success" => false,
-                "message" => "Something is missing, please try again later."
-            ]);
-        }
-
-        $products = Product::where('pack_id', $data['pack_id'])->get();
-
-        return response()->json([
-            "success" => true,
-            "data" => $products->all()
         ]);
     }
 

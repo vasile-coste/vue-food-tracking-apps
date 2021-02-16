@@ -112,9 +112,7 @@ Route::group(['prefix' => 'packaging'], function () {
     });
     /** Packs */
     Route::group(['prefix' => 'packs'], function () {
-        Route::post('/all-new', [PackController::class, 'getNewPackages']);
         Route::post('/all', [PackController::class, 'getAllPackages']);
-        Route::post('/products', [PackController::class, 'getProducts']);
         Route::post('/add-pack-and-prods', [PackController::class, 'addPackage']); 
         Route::post('/update', [PackController::class, 'updatePackage']); 
         Route::post('/delete', [PackController::class, 'deletePackage']);
@@ -123,7 +121,6 @@ Route::group(['prefix' => 'packaging'], function () {
     });
     /** Packs */
     Route::group(['prefix' => 'ship'], function () {
-        Route::post('/all-new', [TransportController::class, 'getNewTransports']);
         Route::post('/all', [TransportController::class, 'getAllTransports']);
         Route::post('/add-transport-and-packs', [TransportController::class, 'addTransport']); 
         Route::post('/update', [TransportController::class, 'updateTransport']); 
