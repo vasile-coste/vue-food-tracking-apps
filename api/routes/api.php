@@ -10,6 +10,7 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\MapSettingsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PackController;
+use App\Http\Controllers\TransportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,7 @@ Route::group(['prefix' => 'farming'], function () {
     });
 });
 
+/** Packaging and transport */
 Route::group(['prefix' => 'packaging'], function () {
     /** Products */
     Route::group(['prefix' => 'product'], function () {
@@ -118,5 +120,13 @@ Route::group(['prefix' => 'packaging'], function () {
         Route::post('/delete', [PackController::class, 'deletePackage']);
         Route::post('/add-products', [PackController::class, 'addProducts']); 
         Route::post('/remove-product', [PackController::class, 'removeProduct']); 
+    });
+    /** Packs */
+    Route::group(['prefix' => 'ship'], function () {
+        Route::post('/all-new', [TransportController::class, 'getNewTransports']);
+        Route::post('/all', [TransportController::class, 'getAllTransports']);
+        Route::post('/add-transport-and-packs', [TransportController::class, 'addTransport']); 
+        Route::post('/update', [TransportController::class, 'updateTransport']); 
+        Route::post('/delete', [TransportController::class, 'deleteTransport']);
     });
 });

@@ -320,3 +320,13 @@
     position: relative;
     top: 1px;
 }
+
+/** Footer */
+
+.footer {
+    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    color:#fff;
+    background-color: #009A7F;
+}

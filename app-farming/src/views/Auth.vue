@@ -253,8 +253,12 @@ export default {
       this.signUp = !this.signUp;
     },
     redirect() {
+      document.getElementById('footer').style.display = "";
       this.$router.push({ name: "Home" });
     },
+  },
+  mounted() {
+    document.getElementById('footer').style.display = "none";
   },
 };
 </script>

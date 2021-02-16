@@ -1,3 +1,4 @@
+# This project is a MVP - Minimal Viable Product
 # Laravel (v8)
 ## Prepare env
 - `composer create-project laravel/laravel <appName>` or `laravel new <appName>` - create application

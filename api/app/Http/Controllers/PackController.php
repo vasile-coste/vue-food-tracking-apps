@@ -38,6 +38,7 @@ class PackController extends Controller
         ]);
     }
 
+    /** get pack lits with pagination and total num of new and shipped packs */
     public function getAllPackages(Request $request)
     {
         $data = $request->toArray();
@@ -130,11 +131,14 @@ class PackController extends Controller
                 "message" => implode(" ", $err)
             ]);
         }
+        
+        $productIds = $data['products'];
+        unset($data['products']);
 
         $save = new Packs($data);
         $save->save();
 
-        Product::whereIn('id', $data['products'])
+        Product::whereIn('id', $productIds)
             ->update(['pack_id' => $save->id]);
 
         // get current package and product count
@@ -198,7 +202,7 @@ class PackController extends Controller
             ]);
         }
 
-        // mahe products available for other package
+        // make products available for other package
         Product::where('pack_id', $data['id'])
             ->update(['pack_id' => 0]);
 

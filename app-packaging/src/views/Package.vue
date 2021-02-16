@@ -187,7 +187,7 @@
                     type="text"
                     v-model="product.product_name"
                     id="product_name"
-                    class="form-control col-md-12 col-sm-12"
+                    class="form-control"
                   />
                 </div>
                 <div class="form-group">
@@ -198,7 +198,7 @@
                     type="text"
                     v-model="product.product_weight"
                     id="product_weight"
-                    class="form-control col-md-12 col-sm-12"
+                    class="form-control"
                   />
                 </div>
               </div>

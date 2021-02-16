@@ -27,7 +27,7 @@
     margin-top: 10px;
 }
 
-.rowItem-text{
+.rowItem-text {
     margin-top: 6px;
 }
 
@@ -47,6 +47,13 @@
     background-color: #009A7F;
     color: #fff;
     padding: 5px 10px;
+}
+
+/** Modal */
+
+.modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
 }
 
 /** Page Home */
@@ -267,4 +274,14 @@
 
 .activeForm {
     display: inherit;
+}
+
+/** Footer */
+
+.footer {
+    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    color:#fff;
+    background-color: #009A7F;
 }
