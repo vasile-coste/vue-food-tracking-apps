@@ -61,6 +61,7 @@
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Invoice</th>
+                <th scope="col">Packs</th>
                 <th scope="col">Ship</th>
                 <th scope="col">Company</th>
                 <th scope="col">Market</th>
@@ -71,6 +72,7 @@
               <tr v-for="(item, index) in transports" :key="index">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ item.invoice }}</td>
+                <td>{{ item.pack_num }}</td>
                 <td>{{ item.ship_from }} - {{ item.ship_to }}</td>
                 <td>{{ item.ship_company }}</td>
                 <td>{{ item.market }}</td>

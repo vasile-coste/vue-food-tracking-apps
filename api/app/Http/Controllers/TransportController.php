@@ -24,7 +24,7 @@ class TransportController extends Controller
         $shipTable = app(Transport::class)->getTable();
         $packsTable = app(Packs::class)->getTable();
         $shipment = DB::table($shipTable)
-            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `prod_packs`'))
+            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
             ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
             ->where($shipTable . '.user_id', $data['user_id'])
             ->where($shipTable . '.status', 'created')
@@ -63,7 +63,7 @@ class TransportController extends Controller
         $shipTable = app(Transport::class)->getTable();
         $packsTable = app(Packs::class)->getTable();
         $shipment = DB::table($shipTable)
-            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `prod_packs`'))
+            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
             ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
             ->orderBy($shipTable . '.invoice')
             ->groupBy($packsTable . '.transport_id')
@@ -138,7 +138,7 @@ class TransportController extends Controller
         $shipTable = app(Transport::class)->getTable();
         $packsTable = app(Packs::class)->getTable();
         $shipment = DB::table($shipTable)
-            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `prod_packs`'))
+            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
             ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
             ->where($shipTable . '.id', $save->id)
             ->orderBy($shipTable . '.invoice')
@@ -196,7 +196,7 @@ class TransportController extends Controller
         $shipTable = app(Transport::class)->getTable();
         $packsTable = app(Packs::class)->getTable();
         $shipment = DB::table($shipTable)
-            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `prod_packs`'))
+            ->select($shipTable . '.*', DB::raw('COUNT(`' . $packsTable . '`.`transport_id`) as `pack_num`'))
             ->join($packsTable, $packsTable . '.transport_id', '=', $shipTable . '.id')
             ->where($shipTable . '.id', $data['id'])
             ->orderBy($shipTable . '.invoice')
