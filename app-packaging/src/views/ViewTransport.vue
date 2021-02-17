@@ -41,41 +41,53 @@
         </div>
 
         <div class="col-sm-12 col-md-12 overflow-auto">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Invoice</th>
-              <th scope="col">Packs</th>
-              <th scope="col">Ship</th>
-              <th scope="col">Company</th>
-              <th scope="col">Market</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in transports.items" :key="index">
-              <th scope="row">{{ index + 1 }}</th>
-              <td>
-                <a href="#" @click="showContent(item, $event)">
-                  {{ item.invoice }}
-                </a>
-              </td>
-              <td>{{ item.pack_num }}</td>
-              <td>{{ item.ship_from }} - {{ item.ship_to }}</td>
-              <td>{{ item.ship_company }}</td>
-              <td>{{ item.market }}</td>
-              <td>
-                <img
-                  class="qrCodeBtn m-1"
-                  src="@/assets/images/icons/qr-code.png"
-                  alt="QR Code"
-                  @click="generateTransportQR(item.id)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Invoice</th>
+                <th scope="col">Packs</th>
+                <th scope="col">Ship</th>
+                <th scope="col">Company</th>
+                <th scope="col">Market</th>
+                <th scope="col">Status</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in transports.items" :key="index">
+                <th scope="row">{{ index + 1 }}</th>
+                <td>
+                  <a href="#" @click="showContent(item, $event)">
+                    {{ item.invoice }}
+                  </a>
+                </td>
+                <td>{{ item.pack_num }}</td>
+                <td>{{ item.ship_from }} - {{ item.ship_to }}</td>
+                <td>{{ item.ship_company }}</td>
+                <td>{{ item.market }}</td>
+                <td>{{ showNormalStatus(item.status) }}</td>
+                <td>
+                  <img
+                    class="qrCodeBtn m-1"
+                    src="@/assets/images/icons/qr-code.png"
+                    alt="QR Code"
+                    @click="generateTransportQR(item.id)"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    @click="updateStatus(item, index)"
+                    v-if="checkStatus(item.status)"
+                  >
+                    {{
+                      item.status == "created" ? "Start Transport" : "Finish Transport"
+                    }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -124,31 +136,31 @@
               </div>
               <div class="row">
                 <div class="col-sm-12 col-md-12">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Package</th>
-                      <th scope="col">Prods</th>
-                      <th scope="col"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in transportPacks.items" :key="index">
-                      <th scope="row">{{ index + 1 }}</th>
-                      <td>{{ item.pack_name }}</td>
-                      <td>{{ item.prod_num }}</td>
-                      <td>
-                        <img
-                          class="qrCodeBtn m-1"
-                          src="@/assets/images/icons/qr-code.png"
-                          alt="QR Code"
-                          @click="generatePackQR(item.id)"
-                        />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Package</th>
+                        <th scope="col">Prods</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(item, index) in transportPacks.items" :key="index">
+                        <th scope="row">{{ index + 1 }}</th>
+                        <td>{{ item.pack_name }}</td>
+                        <td>{{ item.prod_num }}</td>
+                        <td>
+                          <img
+                            class="qrCodeBtn m-1"
+                            src="@/assets/images/icons/qr-code.png"
+                            alt="QR Code"
+                            @click="generatePackQR(item.id)"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -213,6 +225,56 @@ export default {
     };
   },
   methods: {
+    showNormalStatus(status){
+      if(status == "created"){
+        return 'New';
+      }
+      if(status == "in_transit"){
+        return 'In Transit';
+      }
+      if(status == "completed"){
+        return 'Completed';
+      }
+    },
+    checkStatus(status) {
+      if (status == "created" || status == "in_transit") {
+        return true;
+      }
+
+      return false;
+    },
+    updateStatus(transport, index) {
+      console.log(transport, index);
+
+      let obj = {
+        user_id: this.user.id,
+        id: transport.id,
+        status: transport.status == "created" ? "in_transit" : "completed",
+      };
+
+      helper.toggleLoadingScreen(true);
+      this.$axios
+        .post("packaging/ship/update-status", obj)
+        .then((res) => {
+          let result = JSON.parse(res.request.response);
+          if (result.success) {
+            this.transports.items[index].status = obj.status;
+            if (obj.status == "in_transit") {
+              this.transports.ship_created--;
+              this.transports.ship_started++;
+            } else {
+              this.transports.ship_started--;
+              this.transports.ship_completed++;
+            }
+          } else {
+            helper.showWarning(result.message);
+          }
+          helper.toggleLoadingScreen(false);
+        })
+        .catch(() => {
+          helper.toggleLoadingScreen(false);
+        });
+    },
     showContent(transport, event) {
       event.preventDefault();
       this.transportPacks.items = [];
@@ -230,7 +292,6 @@ export default {
       let obj = {
         user_id: this.user.id,
         page: ++this.transports.currentPage,
-        status: "created",
       };
 
       helper.toggleLoadingScreen(true);
@@ -325,7 +386,7 @@ export default {
         this.getTransports();
       }
     };
-    
+
     /** load more data on modal */
     document.getElementById("loadMoreOnScroll").addEventListener("scroll", () => {
       if (

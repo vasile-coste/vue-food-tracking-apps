@@ -124,6 +124,7 @@ Route::group(['prefix' => 'packaging'], function () {
         Route::post('/all', [TransportController::class, 'getAllTransports']);
         Route::post('/add-transport-and-packs', [TransportController::class, 'addTransport']); 
         Route::post('/update', [TransportController::class, 'updateTransport']); 
+        Route::post('/update-status', [TransportController::class, 'updateTransportStatus']); 
         Route::post('/delete', [TransportController::class, 'deleteTransport']);
     });
 });

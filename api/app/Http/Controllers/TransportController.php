@@ -210,4 +210,29 @@ class TransportController extends Controller
             "message" => "Package was deleted successfully."
         ]);
     }
+
+    public function updateTransportStatus(Request $request)
+    {
+        $data = $request->toArray();
+
+        if (
+            !isset($data['user_id']) || $data['user_id'] == ""
+            || !isset($data['id']) || $data['id'] == ""
+            || !isset($data['status']) || $data['status'] == ""
+        ) {
+            return response()->json([
+                "success" => false,
+                "message" => "Something is missing, please try again later."
+            ]);
+        }
+
+
+        Transport::where('id', $data['id'])
+            ->update($data);
+
+        return response()->json([
+            "success" => true,
+            "message" => "The transport was updated successfully."
+        ]);
+    }
 }
