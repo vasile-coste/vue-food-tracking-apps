@@ -33,7 +33,7 @@
           </div>
         </div>
 
-        <div class="col-sm-12 col-md-12" v-for="(item, index) in packs" :key="index">
+        <div class="col-sm-12 col-md-12 ml-1 mr-1" v-for="(item, index) in packs" :key="index">
           <div class="row rowItem">
             <div class="col-sm-4 col-md-4 rowItem-text">
               <a href="#" @click="showPackContent(item.id, item.pack_name, $event)">{{
@@ -159,6 +159,7 @@ export default {
 
       this.pack_name = name;
       this.pack_id = id;
+      this.packProducts.items = [];
       this.getPackProducts(true);
       $("#packageFormContent").modal("show");
     },

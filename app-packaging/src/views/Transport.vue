@@ -543,6 +543,16 @@ export default {
     this.getPackages();
     this.getTransports();
 
+    window.onscroll = () => {
+      let fullHeight = document.documentElement.offsetHeight;
+      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight;
+
+      if (bottomOfWindow >= fullHeight) {
+        this.getPackages();
+        this.getTransports();
+      }
+    };
+
     /** load more data on modal */
     document.getElementById("loadMoreOnScroll").addEventListener("scroll", () => {
       if (
