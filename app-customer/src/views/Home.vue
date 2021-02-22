@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="content">
       <Product :timelineData="timelineData" v-if="urlPath == 'product' && hasData" />
       <Package :timelineData="timelineData" v-if="urlPath == 'package' && hasData" />
       <Transport :timelineData="timelineData" v-if="urlPath == 'transport' && hasData" />

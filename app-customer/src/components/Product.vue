@@ -1,6 +1,8 @@
 <template>
-    <div class="customer">
-    data here aa
+    <div class="container">
+      <div class="row">
+        
+      </div>
     </div>
 </template>
 

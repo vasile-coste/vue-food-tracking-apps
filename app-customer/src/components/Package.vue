@@ -1,5 +1,5 @@
 <template>
-    <div class="customer">
+    <div class="container">
       Package TODO
     </div>
 </template>

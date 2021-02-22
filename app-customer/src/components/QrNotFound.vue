@@ -1,5 +1,5 @@
 <template>
-    <div class="customer">
+    <div class="container">
       <h2 class="actionHeader">No result found.</h2>
 
       The scanned QR code is not valid or returned 0 results.

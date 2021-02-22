@@ -1,5 +1,5 @@
 <template>
-    <div class="customer">
+    <div class="container">
       Transport TODO
     </div>
 </template>
