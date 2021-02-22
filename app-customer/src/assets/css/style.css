@@ -1,0 +1,63 @@
+/** Globals */
+
+*:focus {
+    outline: none;
+}
+
+/** Page home actions*/
+
+.actionHeader {
+    text-transform: capitalize;
+    color: #009A7F;
+}
+
+/** Menu */
+
+.mainNavBar {
+    background-color: #009A7F;
+    padding: 10px 0px;
+    color: #fff;
+    font-weight: 700;
+}
+
+/** Page Header submenu */
+
+.headerMenu {
+    background-image: url("../images/banner.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.headerMenu-title {
+    padding: 23.3px 0px;
+    color: #fff;
+}
+
+.headerMenu-title img {
+    max-height: 45px;
+    margin-right: 10px;
+}
+
+/** Footer */
+
+.footer {
+    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    color: #fff;
+    background-color: #009A7F;
+}
+
+/** Add support for screen with resplution lower than 575px */
+
+@media (max-width: 575px) {
+    .col-md-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    .col-sm-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}

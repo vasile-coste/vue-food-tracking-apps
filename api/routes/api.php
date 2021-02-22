@@ -11,6 +11,7 @@ use App\Http\Controllers\MapSettingsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PackController;
 use App\Http\Controllers\TransportController;
+use App\Http\Controllers\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -127,4 +128,9 @@ Route::group(['prefix' => 'packaging'], function () {
         Route::post('/update-status', [TransportController::class, 'updateTransportStatus']); 
         Route::post('/delete', [TransportController::class, 'deleteTransport']);
     });
+});
+
+/** Packaging and transport */
+Route::group(['prefix' => 'customer'], function () {
+    Route::get('/{qr}', [CustomerController::class, 'getData']);
 });
