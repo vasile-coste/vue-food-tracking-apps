@@ -1,4 +1,15 @@
 # This project is a MVP - Minimal Viable Product
+
+### This project was build using Laravel v8 and VueJS v2 and consist of 4 apps:
+- API (build using Laravel)
+- Farmer App
+- Packaging App
+- Customer App
+
+![preview](./preview.png)
+
+------
+
 # Laravel (v8)
 ## Prepare env
 - `composer create-project laravel/laravel <appName>` or `laravel new <appName>` - create application
@@ -24,7 +35,7 @@
 - `npm run build` compile and minify 
 
 
-## Goodies
+## Goodies (and used libraries)
 - `npm i axios` similar to jquery ajax
 - `npm i vue-router`
 - `npm i vue-session` add session to project
